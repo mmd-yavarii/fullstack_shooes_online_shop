@@ -26,7 +26,6 @@ const ProductSchema = new mongoose.Schema(
         category: {
             type: String,
             required: true,
-            enum: ['casual', 'sport', 'running', 'outdoor', 'formal', 'streetwear', 'fashion', 'basketball', 'football'],
         },
 
         slug: {
@@ -43,15 +42,21 @@ const ProductSchema = new mongoose.Schema(
             slug: String,
         },
 
+        group: {
+            type: String,
+            enum: ['shooes', 'accesory', 'clothes', 'bag', 'box'],
+            required: true,
+        },
+
         gender: {
             type: String,
-            enum: ['male', 'female', 'boy_kids', 'girl_kids'],
+            enum: ['male', 'female', 'boy_kids', 'girl_kids', 'none'],
             required: true,
         },
 
         sizes: [
             {
-                size: { type: Number, required: true },
+                size: { type: String, required: true },
                 stock: { type: Number, required: true, min: 0 },
             },
         ],

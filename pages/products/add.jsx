@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
-import AddProductForm from '@/components/AddProductForm';
+import AddProductForm from '@/components/AddOrEditProductForm';
+import { useRouter } from 'next/router';
 
 export default function AddProduct() {
-    const [form, setForm] = useState({
+    const getInitialForm = () => ({
         title: '',
         description: '',
+        group: '',
         price: '',
         discount: 0,
-        category: 'sneakers',
-        gender: 'male',
+        category: '',
+        gender: 'none',
         brand: {
             name: '',
             slug: '',
@@ -20,6 +22,8 @@ export default function AddProduct() {
         isActive: true,
     });
 
+    const [form, setForm] = useState(getInitialForm);
+
     const [alert, setAlert] = useState({
         open: false,
         type: 'success',
@@ -27,16 +31,18 @@ export default function AddProduct() {
     });
 
     const isFormValid = () => {
-        return (
-            form.title?.trim() &&
-            form.description?.trim()?.length > 10 &&
-            Number(form.price) > 0 &&
-            form.category &&
-            form.gender &&
-            form.brand?.name?.trim() &&
-            form.sizes.length > 0 &&
-            form.images.length > 0
-        );
+        // return (
+        //     form.title?.trim() &&
+        //     form.description?.trim()?.length > 10 &&
+        //     Number(form.price) > 0 &&
+        //     form.category &&
+        //     form.gender &&
+        //     form.brand?.name?.trim() &&
+        //     form.sizes.length > 0 &&
+        //     form.images.length > 0
+        // );
+
+        return true;
     };
 
     const [sizeInput, setSizeInput] = useState({
@@ -80,6 +86,12 @@ export default function AddProduct() {
         }));
     };
 
+    // reset form
+    const resetForm = () => {
+        setForm(getInitialForm());
+        setSizeInput({ size: '', stock: '' });
+    };
+
     const submitHandler = async () => {
         if (!isFormValid()) {
             setAlert({
@@ -101,24 +113,13 @@ export default function AddProduct() {
 
             if (!res.ok) throw new Error();
 
-            setForm({
-                title: '',
-                description: '',
-                price: 0,
-                discount: 0,
-                category: '',
-                gender: 'male',
-                brand: '',
-                sizes: [],
-                images: [],
-                isActive: true,
-            });
-
             setAlert({
                 open: true,
                 type: 'success',
                 message: 'محصول با موفقیت اضافه شد',
             });
+
+            resetForm();
         } catch (err) {
             setAlert({
                 open: true,
@@ -151,6 +152,7 @@ export default function AddProduct() {
                 addSize={addSize}
                 removeSize={removeSize}
                 submitHandler={submitHandler}
+                formType={'add'}
             />
         </>
     );

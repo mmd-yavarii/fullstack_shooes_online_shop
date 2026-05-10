@@ -17,21 +17,21 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const { title, description, price, discount, category, brand, gender, sizes, images, isActive } = req.body;
+        const { title, description, price, discount, category, brand, gender, sizes, images, isActive, group } = req.body;
 
-        if (!title || !description || !price || !category || !brand?.name || !gender || !sizes?.length || !images?.length) {
-            return res.status(400).json({ message: 'Invalid data' });
+        if (!title || !description || !price || !category || !brand?.name || !gender || !sizes?.length || !images?.length || !group) {
+            return res.status(400).json({ message: 'Invalid data - missing required fields' });
         }
 
         const slug = createSlug(title);
 
-        // ✅ اینجا اسم رو تغییر دادم
         const product = await Product.create({
             title,
             description,
             price: Number(price),
             discount: Number(discount || 0),
             category,
+            group,
             gender,
             brand,
             sizes,
