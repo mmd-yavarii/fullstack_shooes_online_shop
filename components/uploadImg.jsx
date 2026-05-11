@@ -73,8 +73,8 @@ export default function UploadImg({ form, setForm }) {
     return (
         <div className="w-full max-w-[670px] my-auto">
             {/* INPUT */}
-            <label className="block w-full mb-2 cursor-pointer bg-[#f5f7fb]">
-                <div className="w-full h-20 flex items-center justify-center flex-col gap-3 py-3 border border-dashed border-gray-400 rounded-lg hover:bg-blue-50 transition">
+            <label className="block w-full mb-2 cursor-pointer ">
+                <div className="w-full h-20 flex items-center justify-center flex-col gap-3 py-3 border border-dashed border-gray-400 rounded-lg transition">
                     <LuImagePlus size={30} className="opacity-50" />
                     <span className="text-sm text-gray-700 font-medium">برای انتخاب تصاویر کلیک کنید</span>
                 </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
-import AddProductForm from '@/components/AddOrEditProductForm';
+import AddProductForm from '@/components/admin/AddOrEditProductForm';
 import { useRouter } from 'next/router';
 
 export default function AddProduct() {

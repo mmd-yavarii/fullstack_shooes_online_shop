@@ -107,4 +107,6 @@ const bagOptions = [
     { value: 'bag_crossbody', label: 'کیف کراس‌بادی' },
 ];
 
-export { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions };
+const allOptions = [...shoesOptions, ...bagOptions, ...giftOptions, ...accessoryOptions, ...clothesOptions, ...hatOptions];
+
+export { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions, allOptions };
