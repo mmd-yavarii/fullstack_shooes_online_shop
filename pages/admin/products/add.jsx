@@ -48,6 +48,7 @@ export default function AddProduct() {
     const [sizeInput, setSizeInput] = useState({
         size: '',
         stock: '',
+        color: '#000000',
     });
 
     const handleChange = (key, value) => {
@@ -73,10 +74,21 @@ export default function AddProduct() {
 
         setForm((prev) => ({
             ...prev,
-            sizes: [...prev.sizes, sizeInput],
+            sizes: [
+                ...prev.sizes,
+                {
+                    size: sizeInput.size,
+                    stock: Number(sizeInput.stock),
+                    color: sizeInput.color,
+                },
+            ],
         }));
 
-        setSizeInput({ size: '', stock: '' });
+        setSizeInput({
+            size: '',
+            stock: '',
+            color: '#000000',
+        });
     };
 
     const removeSize = (index) => {
@@ -89,7 +101,12 @@ export default function AddProduct() {
     // reset form
     const resetForm = () => {
         setForm(getInitialForm());
-        setSizeInput({ size: '', stock: '' });
+
+        setSizeInput({
+            size: '',
+            stock: '',
+            color: '#000000',
+        });
     };
 
     const submitHandler = async () => {

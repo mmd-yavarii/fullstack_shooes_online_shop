@@ -5,7 +5,6 @@ import Product from '@/models/Product';
 export default async function handler(req, res) {
     const { id } = req.query;
 
-    // ✅ دریافت یک محصول
     if (req.method === 'GET') {
         try {
             await connectDB();
@@ -23,6 +22,5 @@ export default async function handler(req, res) {
         }
     }
 
-    // ❌ متدهای غیرمجاز
     return res.status(405).json({ message: 'Method not allowed' });
 }

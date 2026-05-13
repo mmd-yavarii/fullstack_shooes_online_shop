@@ -13,7 +13,9 @@ function LoginAdmin() {
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const [form, setForm] = useState({
         username: '',
@@ -27,14 +29,17 @@ function LoginAdmin() {
         }));
     };
 
-    // log inn handeler
-    const handleSubmit = async (e) => {
+    const handleCreateAdmin = async (e) => {
         e.preventDefault();
+
+        console.log('ارسال فرم:', form);
+
         setError('');
+        setSuccess('');
         setLoading(true);
 
         try {
-            const res = await fetch('/api/login_admin', {
+            const res = await fetch('/api/create_admin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,13 +49,22 @@ function LoginAdmin() {
 
             const data = await res.json();
 
+            console.log('پاسخ سرور:', data);
+
             if (!res.ok) {
-                throw new Error(data.message || 'Login failed');
+                throw new Error(data.message || 'Create admin failed');
             }
 
-            // ✅ redirect بعد از لاگین موفق
-            router.push('/admin/products');
+            setSuccess('ادمین با موفقیت ساخته شد');
+
+            setForm({ username: '', password: '' });
+
+            // redirect بعد از کمی تأخیر برای UX بهتر
+            setTimeout(() => {
+                router.push('/admin/login_admin');
+            }, 1200);
         } catch (err) {
+            console.log('خطا:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -84,11 +98,11 @@ function LoginAdmin() {
                 </Box>
 
                 <Typography variant="h5" textAlign="center" fontWeight="bold">
-                    ورود ادمین
+                    ایجاد ادمین
                 </Typography>
 
                 <Typography variant="body2" textAlign="center" sx={{ mb: 3 }} color="text.secondary">
-                    ورود به پنل مدیریت
+                    ایجاد ادمین فقط یک بار امکان‌پذیر است
                 </Typography>
 
                 {error && (
@@ -97,8 +111,15 @@ function LoginAdmin() {
                     </Alert>
                 )}
 
-                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {success && (
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                        {success}
+                    </Alert>
+                )}
+
+                <Box component="form" onSubmit={handleCreateAdmin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField fullWidth label="نام کاربری" value={form.username} onChange={(e) => handleChange('username', e.target.value)} />
+
                     <TextField
                         fullWidth
                         label="رمز عبور"
@@ -115,12 +136,13 @@ function LoginAdmin() {
                             ),
                         }}
                     />
+
                     <Button type="submit" variant="contained" disabled={loading} sx={{ py: 1.5, borderRadius: 2 }}>
-                        {loading ? 'در حال ورود...' : 'ورود'}
+                        {loading ? 'در حال ایجاد ادمین...' : 'ایجاد ادمین'}
                     </Button>
 
-                    <Link href="/admin/signup_admin" className="text-center">
-                        ایجاد ادمین
+                    <Link href="/admin/login_admin" className="text-center">
+                        ورود به پنل ادمین
                     </Link>
                 </Box>
             </Paper>

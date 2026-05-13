@@ -39,6 +39,7 @@ export default function EditProduct() {
     const [sizeInput, setSizeInput] = useState({
         size: '',
         stock: '',
+        color: '#000000',
     });
 
     const [loading, setLoading] = useState(true);
@@ -89,7 +90,14 @@ export default function EditProduct() {
                         slug: product.brand?.slug || '',
                     },
 
-                    sizes: Array.isArray(product.sizes) ? product.sizes : [],
+                    // sizes: Array.isArray(product.sizes) ? product.sizes : [],
+                    sizes: Array.isArray(product.sizes)
+                        ? product.sizes.map((s) => ({
+                              size: s.size,
+                              stock: s.stock,
+                              color: s.color || '#000000',
+                          }))
+                        : [],
 
                     images: Array.isArray(product.images) ? product.images : [],
 
@@ -179,11 +187,10 @@ export default function EditProduct() {
 
             sizes: [
                 ...prev.sizes,
-
                 {
                     size: sizeInput.size,
-
                     stock: Number(sizeInput.stock),
+                    color: sizeInput.color,
                 },
             ],
         }));
@@ -191,6 +198,7 @@ export default function EditProduct() {
         setSizeInput({
             size: '',
             stock: '',
+            color: '#000000',
         });
     };
 

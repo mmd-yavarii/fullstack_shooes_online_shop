@@ -1,5 +1,6 @@
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
+import { verifyToken } from '@/helper/jwt';
 
 function createSlug(title) {
     return title
@@ -11,7 +12,18 @@ function createSlug(title) {
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        return res.status(405).json({
+            message: 'Method not allowed',
+        });
+    }
+
+    // 🔒 AUTH CHECK
+    const user = verifyToken(req);
+
+    if (!user) {
+        return res.status(401).json({
+            message: 'Unauthorized',
+        });
     }
 
     try {
@@ -19,12 +31,24 @@ export default async function handler(req, res) {
 
         const { title, description, price, discount, category, brand, gender, sizes, images, isActive, group } = req.body;
 
+        // validation
         if (!title || !description || !price || !category || !brand?.name || !gender || !sizes?.length || !images?.length || !group) {
-            return res.status(400).json({ message: 'Invalid data - missing required fields' });
+            return res.status(400).json({
+                message: 'Invalid data - missing required fields',
+            });
         }
 
-        const slug = createSlug(title);
+        // create slug
+        let slug = createSlug(title);
 
+        // جلوگیری از slug تکراری
+        const existingProduct = await Product.findOne({ slug });
+
+        if (existingProduct) {
+            slug = `${slug}-${Date.now()}`;
+        }
+
+        // create product
         const product = await Product.create({
             title,
             description,
@@ -46,6 +70,9 @@ export default async function handler(req, res) {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+
+        return res.status(500).json({
+            message: 'Server error',
+        });
     }
 }

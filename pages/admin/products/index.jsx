@@ -60,16 +60,19 @@ function Index() {
         setFiltered(result);
     }, [search, onlyActive, onlyInactive, onlyDiscount, onlyNoDiscount, category, products]);
 
+    // delete products handeler
     const handleDelete = async (id) => {
+        const backup = products;
+        setProducts((prev) => prev.filter((p) => p._id !== id));
+
         try {
-            const res = await fetch(`/api/product/${id}`, {
+            const res = await fetch(`/api/product/delete/${id}`, {
                 method: 'DELETE',
             });
 
-            if (!res.ok) return;
-
-            setProducts(products.filter((p) => p._id !== id));
+            if (!res.ok) throw new Error();
         } catch (err) {
+            setProducts(backup);
             console.error(err);
         }
     };

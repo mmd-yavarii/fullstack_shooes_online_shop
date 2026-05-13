@@ -99,11 +99,76 @@ export default function AddProductForm({
                         onChange={(e) => setSizeInput((p) => ({ ...p, size: e.target.value }))}
                     />
 
+                    {/* COLOR PICKER */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 0.8,
+                            minWidth: 120,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 2,
+                                px: 1.5,
+                                height: 48,
+                                cursor: 'pointer',
+                                transition: '0.2s',
+                                '&:hover': {
+                                    borderColor: 'primary.main',
+                                    boxShadow: '0 0 0 3px rgba(124,58,237,0.1)',
+                                },
+                            }}
+                            onClick={() => document.getElementById('color-input').click()}
+                        >
+                            {/* preview circle */}
+                            <Box
+                                sx={{
+                                    width: 20,
+                                    height: 20,
+                                    borderRadius: '50%',
+                                    backgroundColor: sizeInput.color,
+                                    border: '1px solid #ddd',
+                                }}
+                            />
+
+                            {/* label */}
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                رنگ
+                            </Typography>
+                        </Box>
+
+                        {/* hidden input */}
+                        <input
+                            id="color-input"
+                            type="color"
+                            value={sizeInput.color}
+                            onChange={(e) => setSizeInput((p) => ({ ...p, color: e.target.value }))}
+                            style={{
+                                position: 'absolute',
+                                opacity: 0,
+                                pointerEvents: 'none',
+                            }}
+                        />
+                    </Box>
+
                     <TextField
                         fullWidth
+                        type="number"
                         label={`موجودی سایز ${sizeInput.size || '...'} در انبار`}
                         value={sizeInput.stock}
-                        onChange={(e) => setSizeInput((p) => ({ ...p, stock: e.target.value }))}
+                        onChange={(e) =>
+                            setSizeInput((p) => ({
+                                ...p,
+                                stock: Number(e.target.value),
+                            }))
+                        }
                     />
 
                     <Button variant="contained" className="whitespace-nowrap" onClick={addSize}>
@@ -112,9 +177,10 @@ export default function AddProductForm({
                 </div>
                 <div className="flex flex-col gap-3 mt-3">
                     {form.sizes.map((s, i) => (
-                        <div key={i} className="flex items-center justify-between px-3 py-3 rounded-xl border border-gray-200   transition">
+                        <div key={i} className="flex items-center justify-between px-3 py-3 rounded-xl border border-gray-200 transition">
                             {/* INFO */}
                             <div className="flex items-center gap-4 text-sm text-gray-700">
+                                {/* SIZE */}
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-400">سایز</span>
                                     <span className="font-semibold text-gray-800">{s.size}</span>
@@ -122,9 +188,22 @@ export default function AddProductForm({
 
                                 <div className="h-6 w-px bg-gray-200" />
 
+                                {/* STOCK */}
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-400">موجودی</span>
                                     <span className="font-semibold text-gray-800">{s.stock}</span>
+                                </div>
+
+                                <div className="h-6 w-px bg-gray-200" />
+
+                                {/* COLOR */}
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-gray-400">رنگ</span>
+
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: s.color || 'white' }} />
+                                        <span className="font-semibold text-gray-800 text-xs">{s.color}</span>
+                                    </div>
                                 </div>
                             </div>
 

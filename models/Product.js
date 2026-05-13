@@ -58,6 +58,7 @@ const ProductSchema = new mongoose.Schema(
             {
                 size: { type: String, required: true },
                 stock: { type: Number, required: true, min: 0 },
+                color: { type: String, required: true },
             },
         ],
 
