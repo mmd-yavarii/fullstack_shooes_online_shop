@@ -88,12 +88,15 @@ function Index() {
     return (
         <div style={{ padding: 20, maxWidth: '900px', margin: '0 auto' }}>
             <div className="flex items-center justify-between mb-4">
-                <p className="text-center font-bold text-2xl">لیست محصولات فروشگاه</p>
-
                 <div className="flex gap-2">
                     <Link href="/admin/products/add">
                         <Button variant="contained">افزودن محصول</Button>
                     </Link>
+
+                    <Link href="/admin/products/add-baner">
+                        <Button variant="contained">افزودن بنر عکس</Button>
+                    </Link>
+
                     <Link href="/admin/transactions">
                         <Button variant="contained">تراکنش ها</Button>
                     </Link>

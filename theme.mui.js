@@ -9,7 +9,7 @@ const colors = {
 
     buttonText: '#ffffff',
 
-    backgroundDefault: '#f9fafb',
+    backgroundDefault: '#ffffff',
     backgroundPaper: '#ffffff',
 };
 
