@@ -13,17 +13,19 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    TextField,
 } from '@mui/material';
 
 import React, { useEffect, useState } from 'react';
 
 function AddBaner() {
     const [form, setForm] = useState({
-        images: [],
+        images: [], // 👈 مهم: مطابق UploadImg
+        title: '',
+        description: '',
     });
 
     const [baners, setBaners] = useState([]);
-
     const [loading, setLoading] = useState(true);
 
     const [alert, setAlert] = useState({
@@ -32,11 +34,10 @@ function AddBaner() {
         message: '',
     });
 
-    // confirm dialog state
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
 
-    // get baners
+    // GET BANNERS
     const getBaners = async () => {
         try {
             setLoading(true);
@@ -44,9 +45,7 @@ function AddBaner() {
             const res = await fetch('/api/baner/get-baner-imgs');
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message);
-            }
+            if (!res.ok) throw new Error(data.message);
 
             setBaners(data.baners);
         } catch (err) {
@@ -64,13 +63,13 @@ function AddBaner() {
         getBaners();
     }, []);
 
-    // add new baner
+    // SUBMIT (FIX اصلی همینجاست)
     const submitHandler = async () => {
-        if (!form.images.length) {
+        if (!form.images.length || !form.title || !form.description) {
             setAlert({
                 open: true,
                 type: 'error',
-                message: 'عکسی برای بنر انتخاب نشده',
+                message: 'همه فیلدها الزامی هستند',
             });
             return;
         }
@@ -82,15 +81,15 @@ function AddBaner() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    images: form.images,
+                    image: form.images[0], // 👈 تبدیل array به string
+                    title: form.title,
+                    description: form.description,
                 }),
             });
 
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message);
-            }
+            if (!res.ok) throw new Error(data.message);
 
             setAlert({
                 open: true,
@@ -98,7 +97,12 @@ function AddBaner() {
                 message: 'بنر با موفقیت اضافه شد',
             });
 
-            setForm({ images: [] });
+            setForm({
+                images: [],
+                title: '',
+                description: '',
+            });
+
             getBaners();
         } catch (err) {
             setAlert({
@@ -109,7 +113,7 @@ function AddBaner() {
         }
     };
 
-    // delete baner
+    // DELETE
     const deleteHandler = async (id) => {
         try {
             const res = await fetch(`/api/baner/delete-baner-img/${id}`, {
@@ -118,9 +122,7 @@ function AddBaner() {
 
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message);
-            }
+            if (!res.ok) throw new Error(data.message);
 
             setAlert({
                 open: true,
@@ -146,30 +148,25 @@ function AddBaner() {
             <Snackbar
                 open={alert.open}
                 autoHideDuration={3000}
-                onClose={() => setAlert((prev) => ({ ...prev, open: false }))}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
+                onClose={() => setAlert((p) => ({ ...p, open: false }))}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <Alert severity={alert.type} variant="filled" onClose={() => setAlert((prev) => ({ ...prev, open: false }))} sx={{ width: '100%' }}>
+                <Alert severity={alert.type} variant="filled" onClose={() => setAlert((p) => ({ ...p, open: false }))} sx={{ width: '100%' }}>
                     {alert.message}
                 </Alert>
             </Snackbar>
 
-            {/* CONFIRM DIALOG */}
+            {/* CONFIRM */}
             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                 <DialogTitle>حذف بنر</DialogTitle>
-
                 <DialogContent>
-                    <Typography>آیا از حذف این بنر مطمئن هستی؟</Typography>
+                    <Typography>آیا مطمئن هستی؟</Typography>
                 </DialogContent>
-
                 <DialogActions>
                     <button onClick={() => setConfirmOpen(false)}>لغو</button>
-
                     <button
-                        className="text-red-500 mr-3"
+                        className="text-red-500 mr-5"
+                        color="error"
                         onClick={() => {
                             deleteHandler(selectedId);
                             setConfirmOpen(false);
@@ -182,74 +179,82 @@ function AddBaner() {
             </Dialog>
 
             <div className="w-full max-w-[900px] mx-auto py-10 flex flex-col gap-10">
-                {/* upload */}
-                <div className="w-full max-w-[600px] mx-auto flex flex-col gap-10">
-                    <div className="flex items-center justify-center">
-                        <UploadImg setForm={setForm} form={form} />
-                    </div>
+                {/* FORM */}
+                <div className="w-full max-w-[600px] mx-auto flex flex-col gap-4">
+                    <TextField
+                        label="عنوان بنر"
+                        fullWidth
+                        value={form.title}
+                        onChange={(e) =>
+                            setForm((p) => ({
+                                ...p,
+                                title: e.target.value,
+                            }))
+                        }
+                    />
+
+                    <TextField
+                        label="توضیحات بنر"
+                        fullWidth
+                        multiline
+                        rows={3}
+                        value={form.description}
+                        onChange={(e) =>
+                            setForm((p) => ({
+                                ...p,
+                                description: e.target.value,
+                            }))
+                        }
+                    />
+
+                    <UploadImg setForm={setForm} form={form} fieldName="image" />
 
                     <Button variant="contained" fullWidth onClick={submitHandler}>
                         افزودن بنر
                     </Button>
                 </div>
 
-                {/* list */}
+                {/* LIST */}
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-between">
-                        <p className="text-center p-4 font-bold">لیست بنر ها</p>
-
-                        <div className="bg-zinc-100 text-zinc-700 px-4 py-2 rounded-full text-sm font-medium">{baners.length} بنر</div>
+                        <p className="font-bold">لیست بنر ها</p>
+                        <div className="bg-zinc-100 px-4 py-2 rounded-full text-sm">{baners.length} بنر</div>
                     </div>
 
                     {loading ? (
-                        <div className="flex items-center justify-center py-16">
+                        <div className="flex justify-center py-16">
                             <CircularProgress />
                         </div>
                     ) : !baners.length ? (
-                        <div className="border border-dashed rounded-3xl py-16 flex items-center justify-center text-zinc-500 text-lg">
-                            هیچ بنری وجود ندارد
-                        </div>
+                        <div className="border border-dashed rounded-3xl py-16 text-center text-zinc-500">هیچ بنری وجود ندارد</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {baners.map((item) => (
                                 <Card
                                     key={item._id}
-                                    elevation={0}
                                     sx={{
                                         borderRadius: '24px',
                                         border: '1px solid #e4e4e7',
                                         overflow: 'hidden',
                                     }}
                                 >
-                                    <CardMedia
-                                        component="img"
-                                        image={item.image}
-                                        alt="banner"
-                                        sx={{
-                                            height: 240,
-                                            objectFit: 'cover',
-                                        }}
-                                    />
+                                    <CardMedia component="img" image={item.image} sx={{ height: 220 }} />
 
                                     <CardContent>
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div className="flex flex-col">
-                                                <Typography variant="h6" fontWeight={700}>
-                                                    بنر سایت
-                                                </Typography>
+                                        <Typography variant="h6" fontWeight={700}>
+                                            {item.title}
+                                        </Typography>
 
-                                                <Typography variant="body2" color="text.secondary">
-                                                    ID : {item._id.slice(0, 8)}
-                                                </Typography>
-                                            </div>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                            {item.description}
+                                        </Typography>
+
+                                        <div className="flex justify-between items-center mt-4">
+                                            <Typography variant="caption">ID: {item._id.slice(0, 8)}</Typography>
 
                                             <Button
-                                                variant="contained"
                                                 color="error"
-                                                sx={{
-                                                    borderRadius: '12px',
-                                                    boxShadow: 'none',
-                                                }}
+                                                variant="contained"
                                                 onClick={() => {
                                                     setSelectedId(item._id);
                                                     setConfirmOpen(true);

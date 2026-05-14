@@ -2,46 +2,39 @@
 
 import connectDB from '@/lib/db';
 import BanerImg from '@/models/BanerImg';
-
 import { verifyToken } from '@/helper/jwt';
 
 export default async function handler(req, res) {
-    // فقط POST
     if (req.method !== 'POST') {
-        return res.status(405).json({
-            message: 'Method not allowed',
-        });
+        return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    // 🔒 AUTH
     const user = verifyToken(req);
 
     if (!user) {
-        return res.status(401).json({
-            message: 'Unauthorized',
-        });
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     try {
         await connectDB();
 
-        const { images } = req.body;
+        const { image, title, description } = req.body;
 
-        if (!images || !Array.isArray(images) || !images.length) {
+        if (!image || !title || !description) {
             return res.status(400).json({
-                message: 'تصاویر بنر الزامی هستند',
+                message: 'image, title, description الزامی هستند',
             });
         }
 
-        const formattedImages = images.map((item) => ({
-            image: item,
-        }));
-
-        const baners = await BanerImg.insertMany(formattedImages);
+        const banner = await BanerImg.create({
+            image,
+            title,
+            description,
+        });
 
         return res.status(201).json({
-            message: 'بنر ها با موفقیت ایجاد شدند',
-            baners,
+            message: 'بنر با موفقیت ایجاد شد',
+            banner,
         });
     } catch (error) {
         console.error(error);

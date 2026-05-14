@@ -1,14 +1,32 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { FiShoppingCart } from 'react-icons/fi';
+import { RiMenu4Line } from 'react-icons/ri';
+
+import { Drawer, List, ListItem, ListItemButton, ListItemText, IconButton, Box, Typography, Divider } from '@mui/material';
 
 function Layout({ children }) {
     const router = useRouter();
 
-    const isAdminRoute = router.pathname.startsWith('/admin');
+    const hideLayoutRoutes = ['/admin', '/product'];
 
-    if (isAdminRoute) {
+    const shouldHideLayout = hideLayoutRoutes.some((route) => router.pathname.startsWith(route));
+
+    const [open, setOpen] = useState(false);
+
+    const toggleDrawer = (state) => () => {
+        setOpen(state);
+    };
+
+    const menuItems = [
+        { text: 'خانه', href: '/' },
+        { text: 'پیگیری سفارش', href: '/orders' },
+        { text: 'درباره ما', href: '/about' },
+    ];
+
+    // ✅ FIX اصلی اینجاست
+    if (shouldHideLayout) {
         return <>{children}</>;
     }
 
@@ -26,9 +44,9 @@ function Layout({ children }) {
                     margin: '0 auto',
                 }}
             >
-                <Link href="">
-                    <FiShoppingCart size="25px" />
-                </Link>
+                <IconButton onClick={toggleDrawer(true)}>
+                    <RiMenu4Line size={25} />
+                </IconButton>
 
                 <div className="flex flex-col items-center justify-center">
                     <p className="text-[#6d071a] font-bold">Zhiyano</p>
@@ -39,6 +57,41 @@ function Layout({ children }) {
                     <FiShoppingCart size="25px" />
                 </Link>
             </div>
+
+            {/* drawer */}
+            <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
+                <Box
+                    sx={{
+                        width: 250,
+                        direction: 'rtl',
+                        textAlign: 'right',
+                    }}
+                    role="presentation"
+                    onClick={toggleDrawer(false)}
+                >
+                    <Typography sx={{ p: 2, fontWeight: 'bold', color: '#6d071a' }}>منو</Typography>
+
+                    <Divider />
+
+                    <List>
+                        {menuItems.map((item) => (
+                            <ListItem key={item.text} disablePadding>
+                                <ListItemButton
+                                    component={Link}
+                                    href={item.href}
+                                    sx={{
+                                        textAlign: 'right',
+                                        justifyContent: 'flex-start',
+                                        direction: 'rtl',
+                                    }}
+                                >
+                                    <ListItemText primary={item.text} />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Drawer>
 
             {children}
 
@@ -53,7 +106,9 @@ function Layout({ children }) {
                     <Link href="" className="w-15">
                         پیگیری سفارش
                     </Link>
+
                     <img width={70} src="https://cloud.rtl-theme.com/wp-content/uploads/2024/07/1d2ab0.png" alt="" />
+
                     <Link href="" className="w-15">
                         درباره ما
                     </Link>

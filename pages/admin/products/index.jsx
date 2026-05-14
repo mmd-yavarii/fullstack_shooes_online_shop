@@ -94,7 +94,11 @@ function Index() {
                     </Link>
 
                     <Link href="/admin/products/add-baner">
-                        <Button variant="contained">افزودن بنر عکس</Button>
+                        <Button variant="contained">مدیریت بنر ها</Button>
+                    </Link>
+
+                    <Link href="/admin/uploads">
+                        <Button variant="contained">مدیریت تصاویر</Button>
                     </Link>
 
                     <Link href="/admin/transactions">

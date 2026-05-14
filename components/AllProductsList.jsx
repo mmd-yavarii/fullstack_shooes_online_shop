@@ -1,89 +1,119 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
-import { Pagination, Stack, TextField } from '@mui/material';
+import { Pagination, Stack } from '@mui/material';
 
-function AllProductsList({ products }) {
-    const [resultProducts, setResultProducts] = useState(products);
+function AllProductsList({ products = [] }) {
     const [filterValue, setFilterValue] = useState('همه');
-    const [searchValue, setSerachValue] = useState('');
-
-    // pagination logic
+    const [searchValue, setSearchValue] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+
     const itemsPerPage = 8;
-    const totalPages = Math.ceil(resultProducts.length / itemsPerPage);
-    const currentItems = resultProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const handlePageChange = (event, page) => {
-        setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    // FILTER + SEARCH (optimized)
+    const filteredProducts = useMemo(() => {
+        return products
+            .filter((item) => {
+                if (filterValue === 'همه') return true;
+                return item.category === filterValue;
+            })
+            .filter((item) => {
+                if (!searchValue) return true;
+                return item.title?.toLowerCase().includes(searchValue.toLowerCase().trim());
+            });
+    }, [products, filterValue, searchValue]);
 
-    // filter handeler
-    function filterHandeler(filter) {
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+    const currentItems = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    function filterHandler(filter) {
         setFilterValue(filter);
-        if (filter == 'همه') {
-            setResultProducts(products);
-        } else {
-            setResultProducts(products?.filter((i) => i.category == filter));
-        }
         setCurrentPage(1);
     }
 
-    // search handeler
-    function searchHandeler(value) {
-        setSerachValue(value);
-        setResultProducts(products?.filter((i) => i.title.includes(value.trim())));
+    function searchHandler(value) {
+        setSearchValue(value);
         setCurrentPage(1);
     }
+
+    const categories = ['همه', ...new Set(products.map((i) => i?.category))];
 
     return (
         <>
-            <span className="mb-4 inline-block">همه محصولات</span>
+            <span className="mb-4 inline-block font-semibold">همه محصولات</span>
 
-            {/* search  */}
+            {/* SEARCH INPUT */}
             <div className="mb-6">
-                <TextField fullWidth size="small" label="جستجو ..." value={searchValue} onChange={(e) => searchHandeler(e.target.value)} />
+                <input
+                    type="text"
+                    placeholder="جستجوی محصول..."
+                    value={searchValue}
+                    onChange={(e) => searchHandler(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid #eaedf3',
+                        backgroundColor: '#f5f7fb',
+                        fontSize: '14px',
+                        outline: 'none',
+                        direction: 'rtl',
+                        textAlign: 'right',
+                        transition: '0.2s ease',
+                    }}
+                    onFocus={(e) => {
+                        e.target.style.border = '1px solid #6d071a';
+                    }}
+                    onBlur={(e) => {
+                        e.target.style.border = '1px solid #eaedf3';
+                    }}
+                />
             </div>
 
-            {/* filters */}
+            {/* FILTERS */}
             <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                {['همه', ...new Set(products.map((i) => i?.category))].map((item) => (
+                {categories.map((item) => (
                     <button
-                        className={`px-4 cursor-pointer h-fit py-1 w-fit rounded-full ${filterValue == item ? 'bg-[#6d071a] text-white' : 'bg-[#f5f7fb] border border-[#eaedf3]'}`}
-                        onClick={() => filterHandeler(item)}
+                        key={item}
+                        onClick={() => filterHandler(item)}
+                        className={`px-4 py-1 rounded-full border transition whitespace-nowrap ${
+                            filterValue === item ? 'bg-[#6d071a] text-white' : 'bg-[#f5f7fb] border-[#eaedf3]'
+                        }`}
                     >
                         {item}
                     </button>
                 ))}
             </div>
 
-            {/* show items */}
-            {currentItems.length ? (
-                <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-2 sm:gap-3 md:gap-4">
-                    {currentItems?.map((item) => (
-                        <ProductCard data={item} />
+            {/* PRODUCTS */}
+            {currentItems.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {currentItems.map((item) => (
+                        <ProductCard key={item._id} data={item} />
                     ))}
                 </div>
             ) : (
-                <p className="my-10 mb-30 text-center">محصولی یافت نشد :(</p>
+                <p className="my-10 text-center text-gray-500">محصولی یافت نشد :(</p>
             )}
 
-            {/* Pagination */}
+            {/* PAGINATION */}
             {totalPages > 1 && (
-                <Stack spacing={2} alignItems="center" className="my-8 flex items-center" style={{ direction: 'ltr' }}>
+                <Stack spacing={2} alignItems="center" className="my-8">
                     <Pagination
                         count={totalPages}
                         page={currentPage}
-                        onChange={handlePageChange}
+                        onChange={(e, page) => {
+                            setCurrentPage(page);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
                         shape="rounded"
                         color="primary"
-                        size="medium"
                         sx={{
+                            direction: 'ltr',
+                            display: 'flex',
+                            justifyContent: 'center',
                             '& .MuiPaginationItem-root': {
                                 fontFamily: 'Vazirmatn, sans-serif',
-                                borderRadius: '8px',
-                            },
-                            '& .MuiPaginationItem-previousNext': {
                                 borderRadius: '8px',
                             },
                         }}

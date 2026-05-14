@@ -1,4 +1,5 @@
 import AllProductsList from '@/components/AllProductsList';
+import BannerSlider from '@/components/BannerSlider';
 import ProductCard from '@/components/ProductCard';
 import { Box, CircularProgress, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -49,7 +50,10 @@ export default function Home() {
                 </>
             )}
 
-            <span className="inline-block my-10"></span>
+            {/* image baner */}
+            <div className="mb-5">
+                <BannerSlider />
+            </div>
 
             {/* all products */}
             {products.products ? <AllProductsList products={products.products} /> : <p className="mt-10 text-center">محصولی یافت نشد</p>}

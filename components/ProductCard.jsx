@@ -12,19 +12,13 @@ function ProductCard({ data }) {
             {isDiscoun && (
                 <div className="bg-red-500 shadow-xl shadow-red-500/30 text-white w-fit rounded-full absolute top-0 right-0 px-2">OFF 30%</div>
             )}
-
             {/* تصویر */}
-            <img
-                src={data.images?.[0] || '/placeholder.png'}
-                alt={data.title}
-                className="w-full aspect-square sm:aspect-[4/3] mb-2 rounded-lg object-cover"
-            />
 
+            <img src={data.images?.[0]} alt={data.title} className="w-full aspect-square sm:aspect-[4/3] mb-2 rounded-lg object-cover" />
             {/* عنوان */}
             <p className="text-xs sm:text-sm font-medium truncate ">
                 {data.brand.name} {data.title}
             </p>
-
             {/* قیمت */}
             <div className="my-1.5 h-10 flex justify-center flex-col sm:my-2">
                 {isDiscoun ? (
@@ -36,7 +30,6 @@ function ProductCard({ data }) {
                     <p className="font-normal text-xs sm:text-sm">5,000,000 تومان</p>
                 )}
             </div>
-
             {/* رنگ‌ها */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -50,7 +43,6 @@ function ProductCard({ data }) {
                 </div>
                 {colors.length > 3 && <span className="text-[10px] sm:text-xs text-gray-500">+{colors.length - 3} رنگ</span>}
             </div>
-
             {/* دکمه */}
             <div className="group">
                 <Link
