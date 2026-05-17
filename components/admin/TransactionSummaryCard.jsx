@@ -1,6 +1,10 @@
 import { Card, CardContent, Typography, Box, Stack, Divider } from '@mui/material';
 
-function TransactionSummaryCard({ total, pending, confirmed, cancelled, revenue }) {
+function TransactionSummaryCard({ total = 0, pending = 0, confirmed = 0, cancelled = 0, revenue = 0 }) {
+    const formatNumber = (num) => {
+        return Number(num || 0).toLocaleString();
+    };
+
     return (
         <Card
             sx={{
@@ -22,10 +26,10 @@ function TransactionSummaryCard({ total, pending, confirmed, cancelled, revenue 
                     خلاصه تراکنش‌ها
                 </Typography>
 
-                {/* Main KPI */}
+                {/* Total */}
                 <Box sx={{ mb: 2 }}>
-                    <Typography variant="h3" sx={{ fontWeight: 800, color: '#111827', lineHeight: 1 }}>
-                        {total}
+                    <Typography variant="h3" sx={{ fontWeight: 800, lineHeight: 1 }}>
+                        {formatNumber(total)}
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         تعداد کل تراکنش‌ها
@@ -35,7 +39,14 @@ function TransactionSummaryCard({ total, pending, confirmed, cancelled, revenue 
                 <Divider sx={{ my: 2 }} />
 
                 {/* Stats */}
-                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        flexWrap: 'wrap',
+                        gap: 1,
+                    }}
+                >
                     <Stat label="در انتظار" value={pending} color="#f59e0b" />
                     <Stat label="تایید شده" value={confirmed} color="#16a34a" />
                     <Stat label="لغو شده" value={cancelled} color="#ef4444" />
@@ -55,8 +66,8 @@ function TransactionSummaryCard({ total, pending, confirmed, cancelled, revenue 
                         مجموع درآمد
                     </Typography>
 
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#111827' }}>
-                        {Number(revenue || 0).toLocaleString()} تومان
+                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                        {formatNumber(revenue)} تومان
                     </Typography>
                 </Box>
             </CardContent>
@@ -69,14 +80,15 @@ function Stat({ label, value, color }) {
         <Box
             sx={{
                 flex: 1,
-                minWidth: 100,
+                minWidth: 110,
                 p: 1.5,
                 borderRadius: 3,
                 background: 'rgba(0,0,0,0.02)',
                 border: `1px solid ${color}20`,
                 transition: '0.2s ease',
+                cursor: 'default',
                 '&:hover': {
-                    transform: 'scale(1.03)',
+                    transform: 'scale(1.04)',
                     background: `${color}08`,
                 },
             }}
@@ -92,7 +104,7 @@ function Stat({ label, value, color }) {
                     color,
                 }}
             >
-                {value}
+                {value ?? 0}
             </Typography>
         </Box>
     );

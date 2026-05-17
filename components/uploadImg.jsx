@@ -160,10 +160,11 @@ export default function UploadImg({ form, setForm }) {
             <Dialog open={open} onClose={() => setOpen(false)}>
                 <DialogTitle sx={{ fontWeight: 600 }}>این تصویر برای همیشه حذف می‌شود. مطمئنی؟</DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setOpen(false)}>لغو</Button>
-                    <Button color="error" variant="contained" onClick={confirmDelete}>
+                    <button onClick={() => setOpen(false)}>لغو</button>
+
+                    <button color="error" variant="contained" onClick={confirmDelete} className="text-red-500 mr-4">
                         حذف
-                    </Button>
+                    </button>
                 </DialogActions>
             </Dialog>
         </div>

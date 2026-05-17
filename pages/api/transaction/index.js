@@ -5,7 +5,12 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const transactions = await Transaction.find({}).sort({ createdAt: -1 });
+        const transactions = await Transaction.find({})
+            .populate({
+                path: 'items.product',
+                select: 'title images',
+            })
+            .sort({ createdAt: -1 });
 
         return res.status(200).json({
             success: true,

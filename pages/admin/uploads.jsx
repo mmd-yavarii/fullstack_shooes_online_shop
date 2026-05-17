@@ -78,9 +78,7 @@ function UploadsPage() {
 
     return (
         <div className="max-w-[1000px] mx-auto p-4">
-            <Typography variant="h5" fontWeight={700} mb={3}>
-                لیست تصاویر آپلود شده
-            </Typography>
+            <p className="text-[20px] text-center my-[30px]">مدیریت تصاویر اپلود شده در سایت</p>
 
             <Box
                 sx={{

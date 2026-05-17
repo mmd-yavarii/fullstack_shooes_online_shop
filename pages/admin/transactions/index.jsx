@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+
 import { CircularProgress, Box, Typography, TextField, Stack, Chip } from '@mui/material';
 
 import TransactionCard from '@/components/admin/TransactionCard';
@@ -8,29 +9,41 @@ function Index() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [filter, setFilter] = useState('all'); // all | pending | confirmed | cancelled
+    const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchTransactions = async () => {
             try {
                 setLoading(true);
 
-                const res = await fetch('/api/transaction/');
+                const res = await fetch('/api/transaction/', {
+                    signal: controller.signal,
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to fetch transactions');
+                }
+
                 const data = await res.json();
 
                 setTransactions(data.data || []);
             } catch (err) {
-                console.log(err);
+                if (err.name !== 'AbortError') {
+                    console.log(err);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchTransactions();
+
+        return () => controller.abort();
     }, []);
 
-    // 🚀 single pass processor (بهینه)
     const processedData = useMemo(() => {
         let pending = 0;
         let confirmed = 0;
@@ -39,18 +52,29 @@ function Index() {
 
         const filtered = [];
 
+        const normalizedSearch = search.trim().toLowerCase();
+
         for (const t of transactions) {
             // summary
-            if (t.orderStatus === 'pending') pending++;
-            if (t.orderStatus === 'confirmed') {
-                confirmed++;
-                revenue += t.totalPrice || 0;
-            }
-            if (t.orderStatus === 'cancelled') cancelled++;
+            switch (t.orderStatus) {
+                case 'pending':
+                    pending++;
+                    break;
 
-            // filter
+                case 'confirmed':
+                    confirmed++;
+                    revenue += t.totalPrice || 0;
+                    break;
+
+                case 'cancelled':
+                    cancelled++;
+                    break;
+            }
+
+            // filters
             const matchStatus = filter === 'all' ? true : t.orderStatus === filter;
-            const matchSearch = t.fullName?.toLowerCase().includes(search.toLowerCase());
+
+            const matchSearch = !normalizedSearch || t.fullName?.toLowerCase().includes(normalizedSearch);
 
             if (matchStatus && matchSearch) {
                 filtered.push(t);
@@ -59,6 +83,7 @@ function Index() {
 
         return {
             filtered,
+
             summary: {
                 total: transactions.length,
                 pending,
@@ -71,22 +96,38 @@ function Index() {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    mt: 5,
+                }}
+            >
                 <CircularProgress />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ p: 3, maxWidth: 900, margin: '0 auto' }}>
-            {/* 📊 Summary */}
+        <Box
+            sx={{
+                p: 3,
+                maxWidth: 900,
+                mx: 'auto',
+            }}
+        >
             <TransactionSummaryCard {...processedData.summary} />
 
-            {/* 🔍 Search */}
             <TextField fullWidth label="جستجو بر اساس نام" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ mb: 2 }} />
 
-            {/* 🎯 Filters */}
-            <Stack direction="row" sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+            <Stack
+                direction="row"
+                sx={{
+                    mb: 3,
+                    flexWrap: 'wrap',
+                    gap: 1,
+                }}
+            >
                 <Chip
                     label="همه"
                     clickable
@@ -120,7 +161,6 @@ function Index() {
                 />
             </Stack>
 
-            {/* 📦 List */}
             {processedData.filtered.length === 0 ? (
                 <Typography>هیچ تراکنشی پیدا نشد</Typography>
             ) : (

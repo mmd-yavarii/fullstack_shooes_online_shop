@@ -2,41 +2,41 @@ import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema(
     {
-        fullName: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+        fullName: String,
+        phone: String,
+        address: String,
+        postalCode: String,
 
-        phone: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+        items: [
+            {
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product',
+                    required: true,
+                },
 
-        address: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+                quantity: {
+                    type: Number,
+                    required: true,
+                    min: 1,
+                },
 
-        postalCode: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+                price: {
+                    type: Number,
+                    required: true,
+                },
 
-        nationalCode: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+                size: {
+                    type: String,
+                    required: true,
+                },
 
-        productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product',
-            required: true,
-        },
+                color: {
+                    type: String,
+                    required: true,
+                },
+            },
+        ],
 
         orderStatus: {
             type: String,
@@ -44,7 +44,7 @@ const transactionSchema = new mongoose.Schema(
             default: 'pending',
         },
 
-        finalPrice: {
+        totalPrice: {
             type: Number,
             required: true,
         },
@@ -55,7 +55,6 @@ const transactionSchema = new mongoose.Schema(
 );
 
 transactionSchema.index({ phone: 1 });
-
 transactionSchema.index({ nationalCode: 1 });
 
 export default mongoose.models.Transaction || mongoose.model('Transaction', transactionSchema);
