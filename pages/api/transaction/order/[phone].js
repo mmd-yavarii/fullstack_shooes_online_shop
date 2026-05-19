@@ -19,7 +19,9 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const orders = await Transaction.find({ phone })
+        const orders = await Transaction.find({
+            'user.phone': phone,
+        })
             .populate({
                 path: 'items.product',
                 select: 'title images',
@@ -32,7 +34,9 @@ export default async function handler(req, res) {
             });
         }
 
-        return res.status(200).json(orders);
+        return res.status(200).json({
+            data: orders,
+        });
     } catch (error) {
         console.error('Orders API Error:', error);
 

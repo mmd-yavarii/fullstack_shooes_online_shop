@@ -7,6 +7,8 @@ import Link from 'next/link';
 function TransactionCard({ data }) {
     const { fullName, phone, nationalCode, address, postalCode, totalPrice, orderStatus, items = [] } = data;
 
+    console.log(data);
+
     const [status, setStatus] = useState(orderStatus);
     const [loading, setLoading] = useState(false);
 
@@ -110,15 +112,11 @@ function TransactionCard({ data }) {
                     mt: 1,
                 }}
             >
-                <Typography variant="body2">شماره: {phone}</Typography>
+                <Typography variant="body2">شماره: {data.user.phone}</Typography>
 
-                <Typography variant="body2">کد ملی: {nationalCode}</Typography>
+                <Typography variant="body2"> نام و نام خانوادگی {data.user.fullName}</Typography>
 
-                <Typography variant="body2">کد پستی: {postalCode}</Typography>
-
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    مبلغ: {(totalPrice || 0).toLocaleString()} تومان
-                </Typography>
+                <Typography variant="body2">کد پستی: {data.user.postalCode}</Typography>
 
                 <Box
                     sx={{
@@ -130,8 +128,30 @@ function TransactionCard({ data }) {
                 >
                     <Typography variant="caption">آدرس</Typography>
 
-                    <Typography variant="body2">{address}</Typography>
+                    <Typography variant="body2">{data.user.address}</Typography>
                 </Box>
+            </Box>
+
+            <Box
+                sx={{
+                    gridColumn: '1 / -1',
+                    p: 1.5,
+                    bgcolor: '#f9fafb',
+                    borderRadius: 2,
+                    marginTop: '10px',
+                }}
+            >
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                    قیمت کل: {(data.pricing?.totalOriginalPrice || 0).toLocaleString()} تومان
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary" sx={{ color: 'red', margin: '10px 0' }}>
+                    مجموع تخفیف: {(data.pricing?.totalDiscount || 0).toLocaleString()} تومان
+                </Typography>
+
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                    مبلغ نهایی: {(data.pricing?.totalFinalPrice || 0).toLocaleString()} تومان
+                </Typography>
             </Box>
 
             {/* ITEMS */}
@@ -203,7 +223,7 @@ function TransactionCard({ data }) {
                                     <Typography variant="body2">تعداد: {item?.quantity}</Typography>
 
                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {(item?.price || 0).toLocaleString()} تومان
+                                        {(item?.finalPrice || 0).toLocaleString()} تومان
                                     </Typography>
                                 </Box>
                             </Box>

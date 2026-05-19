@@ -2,10 +2,12 @@ import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema(
     {
-        fullName: String,
-        phone: String,
-        address: String,
-        postalCode: String,
+        user: {
+            fullName: String,
+            phone: String,
+            address: String,
+            postalCode: String,
+        },
 
         items: [
             {
@@ -21,7 +23,17 @@ const transactionSchema = new mongoose.Schema(
                     min: 1,
                 },
 
-                price: {
+                unitPrice: {
+                    type: Number,
+                    required: true,
+                },
+
+                discount: {
+                    type: Number,
+                    default: 0,
+                },
+
+                finalPrice: {
                     type: Number,
                     required: true,
                 },
@@ -38,15 +50,16 @@ const transactionSchema = new mongoose.Schema(
             },
         ],
 
+        pricing: {
+            totalOriginalPrice: Number,
+            totalDiscount: Number,
+            totalFinalPrice: Number,
+        },
+
         orderStatus: {
             type: String,
             enum: ['pending', 'confirmed', 'cancelled'],
             default: 'pending',
-        },
-
-        totalPrice: {
-            type: Number,
-            required: true,
         },
     },
     {
@@ -54,7 +67,6 @@ const transactionSchema = new mongoose.Schema(
     }
 );
 
-transactionSchema.index({ phone: 1 });
-transactionSchema.index({ nationalCode: 1 });
+transactionSchema.index({ 'user.phone': 1 });
 
 export default mongoose.models.Transaction || mongoose.model('Transaction', transactionSchema);

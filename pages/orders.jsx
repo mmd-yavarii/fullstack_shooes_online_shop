@@ -15,13 +15,10 @@ export default function Order() {
         switch (status) {
             case 'pending':
                 return 1;
-
             case 'confirmed':
                 return 2;
-
-            case 'cancelled':
-                return -1;
-
+            case 'shipped':
+                return 3;
             default:
                 return 0;
         }
@@ -46,7 +43,7 @@ export default function Order() {
                 return;
             }
 
-            setOrders(data?.data || data || []);
+            setOrders(data?.data || []);
         } catch {
             setError('خطای سرور');
         } finally {
@@ -101,18 +98,9 @@ export default function Order() {
             {/* ORDERS */}
             {orders.map((order) => (
                 <Paper key={order._id} sx={{ mt: 3, p: 2, borderRadius: 3 }}>
-                    {/* STATUS SECTION */}
+                    {/* STEP / STATUS */}
                     {order.orderStatus === 'cancelled' ? (
-                        <Typography
-                            sx={{
-                                textAlign: 'center',
-                                color: 'red',
-                                fontWeight: 'bold',
-                                fontSize: 18,
-                            }}
-                        >
-                            سفارش لغو شده است
-                        </Typography>
+                        <Typography sx={{ textAlign: 'center', color: 'red', fontWeight: 'bold' }}>سفارش لغو شده است</Typography>
                     ) : (
                         <Stepper activeStep={getStepFromStatus(order.orderStatus)}>
                             {steps.map((label) => (
@@ -123,14 +111,16 @@ export default function Order() {
                         </Stepper>
                     )}
 
-                    {/* INFO */}
+                    {/* USER INFO */}
                     <Box sx={{ mt: 3 }}>
-                        <Typography>نام: {order.fullName}</Typography>
-                        <Typography>شماره: {order.phone}</Typography>
-                        <Typography>آدرس: {order.address}</Typography>
-                        <Typography>کد پستی: {order.postalCode}</Typography>
+                        <Typography>نام: {order.user?.fullName}</Typography>
+                        <Typography>شماره: {order.user?.phone}</Typography>
+                        <Typography>آدرس: {order.user?.address}</Typography>
+                        <Typography>کد پستی: {order.user?.postalCode}</Typography>
 
-                        <Typography sx={{ fontWeight: 'bold', mt: 1 }}>مجموع: {(order.totalPrice || 0).toLocaleString()} تومان</Typography>
+                        <Typography sx={{ fontWeight: 'bold', mt: 1 }}>
+                            مجموع: {order.pricing?.totalFinalPrice?.toLocaleString() || 0} تومان
+                        </Typography>
                     </Box>
 
                     {/* ITEMS */}
@@ -150,40 +140,30 @@ export default function Order() {
                                             borderRadius: 2,
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            alignItems: 'center',
                                         }}
                                     >
                                         <Box>
-                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                                محصول: {product.title || 'نامشخص'}
-                                            </Typography>
+                                            <Typography sx={{ fontWeight: 600 }}>محصول ID: {product?._id || 'نامشخص'}</Typography>
 
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                }}
-                                            >
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
                                                 <Box
                                                     sx={{
                                                         width: 12,
                                                         height: 12,
                                                         borderRadius: '50%',
                                                         backgroundColor: item.color || '#ccc',
-                                                        border: '1px solid #ddd',
                                                     }}
                                                 />
 
-                                                <Typography variant="caption">سایز: {item.size || '-'}</Typography>
+                                                <Typography variant="caption">سایز: {item.size}</Typography>
                                             </Box>
 
-                                            <Link href={`/product/${product._id}`} className="text-blue-600">
+                                            <Link href={`/product/${product?._id}`} className="text-blue-600">
                                                 دیدن محصول
                                             </Link>
                                         </Box>
 
-                                        <Typography sx={{ fontWeight: 600 }}>{(item.price || 0).toLocaleString()} تومان</Typography>
+                                        <Typography sx={{ fontWeight: 600 }}>{(item.finalPrice || 0).toLocaleString()} تومان</Typography>
                                     </Box>
                                 );
                             })}

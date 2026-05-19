@@ -59,7 +59,7 @@ export default function Home() {
             {products.products ? <AllProductsList products={products.products} /> : <p className="mt-10 text-center">محصولی یافت نشد</p>}
 
             {/* about us */}
-            <span className="mb-4 inline-block">درباره ما</span>
+            <span className="mb-4 inline-block mt-3">درباره ما</span>
             <p className="text-center">
                 فروشگاه ژیویانو با بیش از 10 سال سابقه کاری پررنگ و درخشان توانسته است با پخش اجناس با کیفیت خود محبوبیت خوبی را بین مشتریان خود در
                 نقاط مختلف کشور کسب کند.

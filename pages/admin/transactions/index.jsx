@@ -19,13 +19,9 @@ function Index() {
             try {
                 setLoading(true);
 
-                const res = await fetch('/api/transaction/', {
+                const res = await fetch('/api/transaction', {
                     signal: controller.signal,
                 });
-
-                if (!res.ok) {
-                    throw new Error('Failed to fetch transactions');
-                }
 
                 const data = await res.json();
 
@@ -51,7 +47,6 @@ function Index() {
         let revenue = 0;
 
         const filtered = [];
-
         const normalizedSearch = search.trim().toLowerCase();
 
         for (const t of transactions) {
@@ -60,21 +55,20 @@ function Index() {
                 case 'pending':
                     pending++;
                     break;
-
                 case 'confirmed':
                     confirmed++;
-                    revenue += t.totalPrice || 0;
+                    revenue += t.pricing?.totalFinalPrice || 0;
                     break;
-
                 case 'cancelled':
                     cancelled++;
                     break;
             }
 
-            // filters
-            const matchStatus = filter === 'all' ? true : t.orderStatus === filter;
+            // search FIX
+            const matchSearch = !normalizedSearch || t.user?.fullName?.toLowerCase().includes(normalizedSearch);
 
-            const matchSearch = !normalizedSearch || t.fullName?.toLowerCase().includes(normalizedSearch);
+            // filter
+            const matchStatus = filter === 'all' ? true : t.orderStatus === filter;
 
             if (matchStatus && matchSearch) {
                 filtered.push(t);
@@ -83,7 +77,6 @@ function Index() {
 
         return {
             filtered,
-
             summary: {
                 total: transactions.length,
                 pending,
@@ -96,38 +89,19 @@ function Index() {
 
     if (loading) {
         return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    mt: 5,
-                }}
-            >
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
                 <CircularProgress />
             </Box>
         );
     }
 
     return (
-        <Box
-            sx={{
-                p: 3,
-                maxWidth: 900,
-                mx: 'auto',
-            }}
-        >
+        <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
             <TransactionSummaryCard {...processedData.summary} />
 
             <TextField fullWidth label="جستجو بر اساس نام" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ mb: 2 }} />
 
-            <Stack
-                direction="row"
-                sx={{
-                    mb: 3,
-                    flexWrap: 'wrap',
-                    gap: 1,
-                }}
-            >
+            <Stack direction="row" sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
                 <Chip
                     label="همه"
                     clickable

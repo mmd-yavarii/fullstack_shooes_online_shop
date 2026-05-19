@@ -1,6 +1,20 @@
-import { Paper, Typography, TextField, Box, MenuItem, Button, Switch, FormControlLabel, Divider } from '@mui/material';
+import {
+    Paper,
+    Typography,
+    TextField,
+    Box,
+    MenuItem,
+    Button,
+    Switch,
+    FormControlLabel,
+    Divider,
+    Select,
+    FormControl,
+    InputLabel,
+} from '@mui/material';
 import UploadImg from '@/components/uploadImg';
-import { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions } from '@/helper/categories';
+import { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions, CATEGORY_GROUP } from '@/helper/categories';
+import { COLOR_PALETTE } from '@/helper/help';
 
 export default function AddProductForm({
     form,
@@ -58,11 +72,11 @@ export default function AddProductForm({
             />
 
             <TextField select label="گروه" fullWidth value={form.group || ''} onChange={(e) => handleChange('group', e.target.value)}>
-                <MenuItem value="shooes">کفش</MenuItem>
-                <MenuItem value="accesory">اکسسوری</MenuItem>
-                <MenuItem value="clothes">لباس</MenuItem>
-                <MenuItem value="bag">کیف</MenuItem>
-                <MenuItem value="box">باکس هدیه</MenuItem>
+                {CATEGORY_GROUP.map((item) => (
+                    <MenuItem key={item.value} value={item.value}>
+                        {item.label}
+                    </MenuItem>
+                ))}
             </TextField>
 
             <TextField
@@ -108,54 +122,48 @@ export default function AddProductForm({
                             minWidth: 120,
                         }}
                     >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1.5,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                borderRadius: 2,
-                                px: 1.5,
-                                height: 48,
-                                cursor: 'pointer',
-                                transition: '0.2s',
-                                '&:hover': {
-                                    borderColor: 'primary.main',
-                                    boxShadow: '0 0 0 3px rgba(124,58,237,0.1)',
-                                },
-                            }}
-                            onClick={() => document.getElementById('color-input').click()}
-                        >
-                            {/* preview circle */}
-                            <Box
+                        {/* select color */}
+
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={sizeInput.color}
+                                label="Color"
+                                onChange={(e) => setSizeInput((p) => ({ ...p, color: e.target.value }))}
                                 sx={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    backgroundColor: sizeInput.color,
-                                    border: '1px solid #ddd',
+                                    borderRadius: 2,
+                                    '& .MuiSelect-select': {
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        py: 1.2,
+                                    },
                                 }}
-                            />
-
-                            {/* label */}
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                رنگ
-                            </Typography>
-                        </Box>
-
-                        {/* hidden input */}
-                        <input
-                            id="color-input"
-                            type="color"
-                            value={sizeInput.color}
-                            onChange={(e) => setSizeInput((p) => ({ ...p, color: e.target.value }))}
-                            style={{
-                                position: 'absolute',
-                                opacity: 0,
-                                pointerEvents: 'none',
-                            }}
-                        />
+                            >
+                                {COLOR_PALETTE.map((c) => (
+                                    <MenuItem
+                                        key={c.hex}
+                                        value={c.hex}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1.5,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                width: 14,
+                                                height: 14,
+                                                backgroundColor: c.hex,
+                                                borderRadius: '50%',
+                                                border: '1px solid #ddd',
+                                                flexShrink: 0,
+                                            }}
+                                        />
+                                        {c.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Box>
 
                     <TextField

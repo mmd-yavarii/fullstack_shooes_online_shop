@@ -13,6 +13,10 @@ function Layout({ children }) {
 
     const shouldHideLayout = hideLayoutRoutes.some((route) => router.pathname.startsWith(route));
 
+    const hideFooterRoutes = ['/cart', '/about', '/checkout-page'];
+
+    const shouldHideFooter = hideFooterRoutes.some((route) => router.pathname.startsWith(route));
+
     const [open, setOpen] = useState(false);
 
     const toggleDrawer = (state) => () => {
@@ -25,21 +29,20 @@ function Layout({ children }) {
         { text: 'درباره ما', href: '/about' },
     ];
 
-    // ✅ FIX اصلی اینجاست
     if (shouldHideLayout) {
         return <>{children}</>;
     }
 
     return (
         <div>
-            {/* header */}
+            {/* HEADER */}
             <div
                 className="flex items-center justify-between p-4 bg-white max-w-[900px]"
                 style={{
                     boxShadow: '1px 2px 10px #00000011',
                     position: 'sticky',
                     top: '0',
-                    zIndex: '2',
+                    zIndex: '999',
                     borderRadius: '10px',
                     margin: '0 auto',
                 }}
@@ -53,12 +56,12 @@ function Layout({ children }) {
                     <p className="text-[#6d071a] font-bold">ژیویانو</p>
                 </div>
 
-                <Link href="">
+                <Link href="/cart">
                     <FiShoppingCart size="25px" />
                 </Link>
             </div>
 
-            {/* drawer */}
+            {/* DRAWER */}
             <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
                 <Box
                     sx={{
@@ -93,27 +96,30 @@ function Layout({ children }) {
                 </Box>
             </Drawer>
 
+            {/* PAGE CONTENT */}
             {children}
 
-            {/* footer */}
-            <div className="border-t border-[#0000001c] p-4">
-                <div className="flex flex-col items-center justify-center">
-                    <p className="text-[#6d071a] font-bold">Zhiyano</p>
-                    <p className="text-[#6d071a] font-bold">ژیویانو</p>
+            {/* FOOTER (HIDDEN IN CART) */}
+            {!shouldHideFooter && (
+                <div className="border-t border-[#0000001c] p-4">
+                    <div className="flex flex-col items-center justify-center">
+                        <p className="text-[#6d071a] font-bold">Zhiyano</p>
+                        <p className="text-[#6d071a] font-bold">ژیویانو</p>
+                    </div>
+
+                    <div className="flex items-center justify-evenly mt-3">
+                        <Link href="" className="w-15">
+                            پیگیری سفارش
+                        </Link>
+
+                        <img width={70} src="https://cloud.rtl-theme.com/wp-content/uploads/2024/07/1d2ab0.png" alt="" />
+
+                        <Link href="" className="w-15">
+                            درباره ما
+                        </Link>
+                    </div>
                 </div>
-
-                <div className="flex items-center justify-evenly mt-3">
-                    <Link href="" className="w-15">
-                        پیگیری سفارش
-                    </Link>
-
-                    <img width={70} src="https://cloud.rtl-theme.com/wp-content/uploads/2024/07/1d2ab0.png" alt="" />
-
-                    <Link href="" className="w-15">
-                        درباره ما
-                    </Link>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

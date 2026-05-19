@@ -1,3 +1,11 @@
+const CATEGORY_GROUP = [
+    { value: 'shoes', label: 'کفش', image: '/category_groups/pngtree-sports-shoes-png-image_15910407.png' },
+    { value: 'accessory', label: 'اکسسوری', image: '/category_groups/watch.webp' },
+    { value: 'clothes', label: 'لباس', image: '/category_groups/cloths.webp' },
+    { value: 'bag', label: 'کیف', image: '/category_groups/bag.png' },
+    { value: 'box', label: 'باکس هدیه', image: '/category_groups/box.png' },
+];
+
 const shoesOptions = [
     { value: 'casual', label: 'روزمره' },
     { value: 'sport', label: 'ورزشی' },
@@ -109,4 +117,4 @@ const bagOptions = [
 
 const allOptions = [...shoesOptions, ...bagOptions, ...giftOptions, ...accessoryOptions, ...clothesOptions, ...hatOptions];
 
-export { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions, allOptions };
+export { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions, allOptions, CATEGORY_GROUP };
