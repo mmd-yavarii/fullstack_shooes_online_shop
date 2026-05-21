@@ -1,28 +1,51 @@
 import { useState } from 'react';
 import { Stepper, Step, StepLabel, Box, Typography, CircularProgress, Paper, Stack } from '@mui/material';
-
 import Link from 'next/link';
 
-const steps = ['ثبت شده', 'در حال پردازش', 'ارسال شده'];
+const orderSteps = ['ثبت شده', 'در حال پردازش', 'ارسال شده'];
+const paymentSteps = ['در انتظار پرداخت', 'پرداخت شده', 'ناموفق'];
+
+// تبدیل اعداد فارسی/عربی به انگلیسی
+const convertToEnglishNumbers = (value) => {
+    return value
+        .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .replace(/\D/g, '');
+};
+
+// order status
+const getOrderStep = (status) => {
+    switch (status) {
+        case 'pending':
+            return 1;
+        case 'confirmed':
+            return 2;
+        case 'shipped':
+            return 3;
+        default:
+            return 0;
+    }
+};
+
+// payment status
+const getPaymentStep = (status) => {
+    switch (status) {
+        case 'pending':
+            return 0;
+        case 'paid':
+            return 1;
+        case 'failed':
+            return 2;
+        default:
+            return 0;
+    }
+};
 
 export default function Order() {
     const [phone, setPhone] = useState('');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
-    const getStepFromStatus = (status) => {
-        switch (status) {
-            case 'pending':
-                return 1;
-            case 'confirmed':
-                return 2;
-            case 'shipped':
-                return 3;
-            default:
-                return 0;
-        }
-    };
 
     const handleSubmit = async () => {
         if (phone.length < 10) {
@@ -44,7 +67,8 @@ export default function Order() {
             }
 
             setOrders(data?.data || []);
-        } catch {
+        } catch (err) {
+            console.log(err);
             setError('خطای سرور');
         } finally {
             setLoading(false);
@@ -56,8 +80,10 @@ export default function Order() {
             {/* INPUT */}
             <input
                 type="tel"
+                dir="ltr"
+                maxLength={11}
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(convertToEnglishNumbers(e.target.value))}
                 placeholder="شماره تلفن"
                 style={{
                     width: '100%',
@@ -72,6 +98,7 @@ export default function Order() {
             {/* BUTTON */}
             <button
                 onClick={handleSubmit}
+                disabled={loading}
                 style={{
                     width: '100%',
                     padding: '12px',
@@ -80,9 +107,10 @@ export default function Order() {
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '16px',
+                    opacity: loading ? 0.7 : 1,
                 }}
             >
-                پیگیری سفارش‌ها
+                {loading ? 'در حال دریافت...' : 'پیگیری سفارش‌ها'}
             </button>
 
             {/* LOADING */}
@@ -98,18 +126,36 @@ export default function Order() {
             {/* ORDERS */}
             {orders.map((order) => (
                 <Paper key={order._id} sx={{ mt: 3, p: 2, borderRadius: 3 }}>
-                    {/* STEP / STATUS */}
+                    {/* ORDER STATUS */}
                     {order.orderStatus === 'cancelled' ? (
                         <Typography sx={{ textAlign: 'center', color: 'red', fontWeight: 'bold' }}>سفارش لغو شده است</Typography>
                     ) : (
-                        <Stepper activeStep={getStepFromStatus(order.orderStatus)}>
-                            {steps.map((label) => (
+                        <Stepper activeStep={getOrderStep(order.orderStatus)}>
+                            {orderSteps.map((label) => (
                                 <Step key={label}>
                                     <StepLabel>{label}</StepLabel>
                                 </Step>
                             ))}
                         </Stepper>
                     )}
+
+                    {/* PAYMENT STATUS */}
+                    <Box
+                        sx={{
+                            mt: 2,
+                            p: 1,
+                            borderRadius: 2,
+                            border: '1px solid #ddd',
+                            backgroundColor: order.paymentStatus === 'paid' ? '#e6ffed' : order.paymentStatus === 'failed' ? '#ffe6e6' : '#fff8e1',
+                        }}
+                    >
+                        <Typography sx={{ fontWeight: 600 }}>
+                            وضعیت پرداخت: {order.paymentStatus === 'paid' && 'پرداخت شده'}
+                            {order.paymentStatus === 'pending' && 'در انتظار پرداخت'}
+                            {order.paymentStatus === 'failed' && 'ناموفق'}
+                            {order.paymentStatus === 'refunded' && 'بازگشت وجه'}
+                        </Typography>
+                    </Box>
 
                     {/* USER INFO */}
                     <Box sx={{ mt: 3 }}>
@@ -145,7 +191,7 @@ export default function Order() {
                                         <Box>
                                             <Typography sx={{ fontWeight: 600 }}>محصول ID: {product?._id || 'نامشخص'}</Typography>
 
-                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                                 <Box
                                                     sx={{
                                                         width: 12,
@@ -154,7 +200,6 @@ export default function Order() {
                                                         backgroundColor: item.color || '#ccc',
                                                     }}
                                                 />
-
                                                 <Typography variant="caption">سایز: {item.size}</Typography>
                                             </Box>
 

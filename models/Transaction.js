@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Product from './Product';
 
 const transactionSchema = new mongoose.Schema(
     {
@@ -60,6 +61,12 @@ const transactionSchema = new mongoose.Schema(
             type: String,
             enum: ['pending', 'confirmed', 'cancelled'],
             default: 'pending',
+        },
+
+        paymentStatus: {
+            type: String,
+            enum: ['unpaid', 'pending', 'paid', 'failed', 'refunded'],
+            default: 'unpaid',
         },
     },
     {

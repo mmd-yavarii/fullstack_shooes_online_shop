@@ -13,7 +13,7 @@ function Layout({ children }) {
 
     const shouldHideLayout = hideLayoutRoutes.some((route) => router.pathname.startsWith(route));
 
-    const hideFooterRoutes = ['/cart', '/about', '/checkout-page'];
+    const hideFooterRoutes = ['/cart', '/about', '/checkout-page', '/orders'];
 
     const shouldHideFooter = hideFooterRoutes.some((route) => router.pathname.startsWith(route));
 

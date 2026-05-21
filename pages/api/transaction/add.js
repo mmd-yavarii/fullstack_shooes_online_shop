@@ -53,6 +53,8 @@ export default async function handler(req, res) {
             },
 
             orderStatus: 'pending',
+
+            paymentStatus: 'pending',
         });
 
         console.log('CREATED:', transaction);

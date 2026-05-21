@@ -1,35 +1,63 @@
 export const COLOR_PALETTE = [
-    // Neutrals
+    // Neutral
     { name: 'مشکی', hex: '#000000' },
     { name: 'سفید', hex: '#FFFFFF' },
-    { name: 'خاکستری روشن', hex: '#F5F5F5' },
-    { name: 'نقره‌ای', hex: '#C0C0C0' },
+    { name: 'خاکستری روشن', hex: '#D3D3D3' },
     { name: 'خاکستری', hex: '#808080' },
-    { name: 'خاکستری تیره', hex: '#2C2C2C' },
+    { name: 'خاکستری تیره', hex: '#2F2F2F' },
+    { name: 'نقره‌ای', hex: '#C0C0C0' },
+    { name: 'ذغالی', hex: '#36454F' },
+    { name: 'کرم', hex: '#F5F5DC' },
+    { name: 'بژ', hex: '#F5F5DC' },
+    { name: 'شیری', hex: '#FFFDD0' },
 
-    // Basic colors
+    // Red / Pink
     { name: 'قرمز', hex: '#FF0000' },
-    { name: 'سبز لیمویی', hex: '#00FF00' },
-    { name: 'آبی', hex: '#0000FF' },
-    { name: 'زرد', hex: '#FFFF00' },
-    { name: 'ارغوانی', hex: '#FF00FF' },
-    { name: 'فیروزه‌ای', hex: '#00FFFF' },
+    { name: 'زرشکی', hex: '#800020' },
+    { name: 'شرابی', hex: '#722F37' },
+    { name: 'صورتی', hex: '#FFC0CB' },
+    { name: 'صورتی چرک', hex: '#D8A39D' },
+    { name: 'گلبهی', hex: '#FFB07C' },
 
-    // Warm / Fashion tones
+    // Orange / Yellow
     { name: 'نارنجی', hex: '#FFA500' },
-    { name: 'مرجانی', hex: '#FF7F50' },
-    { name: 'گوجه‌ای', hex: '#FF6347' },
-    { name: 'قهوه‌ای', hex: '#8B4513' },
-    { name: 'دارچینی', hex: '#A0522D' },
-    { name: 'شکلاتی', hex: '#D2691E' },
+    { name: 'نارنجی سوخته', hex: '#CC5500' },
+    { name: 'طلایی', hex: '#FFD700' },
+    { name: 'زرد', hex: '#FFFF00' },
+    { name: 'خردلی', hex: '#D4A017' },
 
-    // Natural / earthy tones
+    // Green
     { name: 'سبز', hex: '#008000' },
-    { name: 'زیتونی تیره', hex: '#556B2F' },
-    { name: 'سبز زیتونی', hex: '#6B8E23' },
+    { name: 'سبز تیره', hex: '#006400' },
+    { name: 'سبز لیمویی', hex: '#32CD32' },
+    { name: 'زیتونی', hex: '#808000' },
+    { name: 'یشمی', hex: '#00A86B' },
+    { name: 'سدری', hex: '#738678' },
+
+    // Blue
+    { name: 'آبی', hex: '#0000FF' },
+    { name: 'سرمه‌ای', hex: '#000080' },
+    { name: 'آبی نفتی', hex: '#003153' },
+    { name: 'آبی کاربنی', hex: '#123456' },
+    { name: 'آبی آسمانی', hex: '#87CEEB' },
+    { name: 'فیروزه‌ای', hex: '#40E0D0' },
+
+    // Purple
     { name: 'بنفش', hex: '#800080' },
-    { name: 'نیلی', hex: '#4B0082' },
-    { name: 'زرشکی', hex: '#DC143C' },
+    { name: 'یاسی', hex: '#C8A2C8' },
+    { name: 'بادمجانی', hex: '#614051' },
+
+    // Brown
+    { name: 'قهوه‌ای', hex: '#8B4513' },
+    { name: 'قهوه‌ای روشن', hex: '#A52A2A' },
+    { name: 'شکلاتی', hex: '#D2691E' },
+    { name: 'نسکافه‌ای', hex: '#967969' },
+
+    // Fashion / Popular
+    { name: 'نود', hex: '#E3BC9A' },
+    { name: 'موکا', hex: '#96705B' },
+    { name: 'رزگلد', hex: '#B76E79' },
+    { name: 'کالباسی', hex: '#CD5C5C' },
 ];
 
 function applyDiscount(price, discountPercent = 0) {

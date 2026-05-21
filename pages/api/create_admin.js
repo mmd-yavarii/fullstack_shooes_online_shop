@@ -12,14 +12,17 @@ export default async function handler(req, res) {
         const { username, password } = req.body;
 
         if (!username || !password) {
-            return res.status(400).json({ message: 'نام کاربری و رمز عبور الزامی است' });
+            return res.status(400).json({
+                message: 'نام کاربری و رمز عبور الزامی است',
+            });
         }
 
         const userCount = await User.countDocuments();
 
-        if (userCount > 0) {
+        // حداکثر 3 نفر
+        if (userCount >= 3) {
             return res.status(403).json({
-                message: 'ادمین قبلاً ساخته شده است. امکان ساخت ادمین جدید وجود ندارد.',
+                message: 'ظرفیت ثبت‌نام تکمیل شده است',
             });
         }
 
@@ -37,6 +40,9 @@ export default async function handler(req, res) {
         });
     } catch (err) {
         console.error('خطای سرور:', err);
-        return res.status(500).json({ message: 'خطای داخلی سرور' });
+
+        return res.status(500).json({
+            message: 'خطای داخلی سرور',
+        });
     }
 }

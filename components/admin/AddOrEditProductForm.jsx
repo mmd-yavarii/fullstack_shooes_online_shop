@@ -1,24 +1,13 @@
-import {
-    Paper,
-    Typography,
-    TextField,
-    Box,
-    MenuItem,
-    Button,
-    Switch,
-    FormControlLabel,
-    Divider,
-    Select,
-    FormControl,
-    InputLabel,
-} from '@mui/material';
+import { TextField, Box, MenuItem, Button, Switch, FormControlLabel, Select, FormControl } from '@mui/material';
+
 import UploadImg from '@/components/uploadImg';
+
 import { shoesOptions, bagOptions, giftOptions, accessoryOptions, clothesOptions, hatOptions, CATEGORY_GROUP } from '@/helper/categories';
+
 import { COLOR_PALETTE } from '@/helper/help';
 
 export default function AddProductForm({
     form,
-    group,
     setForm,
     handleChange,
     handleBrandChange,
@@ -31,16 +20,24 @@ export default function AddProductForm({
 }) {
     const getGroupOptions = (group) => {
         switch (group) {
-            case 'shooes':
+            case 'shoes':
                 return shoesOptions;
-            case 'accesory':
+
+            case 'accessory':
                 return accessoryOptions;
+
             case 'clothes':
                 return clothesOptions;
+
             case 'bag':
                 return bagOptions;
+
             case 'box':
                 return giftOptions;
+
+            case 'hat':
+                return hatOptions;
+
             default:
                 return [];
         }
@@ -48,10 +45,12 @@ export default function AddProductForm({
 
     return (
         <div className="w-full max-w-[380px] md:max-w-[600px] mx-auto py-10 flex flex-col gap-10">
-            <p className="text-center font-bold text-2xl mb-4">{formType == 'add' ? 'افزودن محصول جدید' : 'تغییر اطلاعات محصول'}</p>
+            <p className="text-center font-bold text-2xl mb-4">{formType === 'add' ? 'افزودن محصول جدید' : 'تغییر اطلاعات محصول'}</p>
 
+            {/* TITLE */}
             <TextField fullWidth label="نام محصول" value={form.title} onChange={(e) => handleChange('title', e.target.value)} />
 
+            {/* DESCRIPTION */}
             <TextField
                 fullWidth
                 label="توضیحات"
@@ -61,8 +60,10 @@ export default function AddProductForm({
                 onChange={(e) => handleChange('description', e.target.value)}
             />
 
+            {/* PRICE */}
             <TextField label="قیمت" type="number" fullWidth value={form.price} onChange={(e) => handleChange('price', e.target.value)} />
 
+            {/* DISCOUNT */}
             <TextField
                 label="تخفیف (درصد)"
                 type="number"
@@ -71,7 +72,19 @@ export default function AddProductForm({
                 onChange={(e) => handleChange('discount', e.target.value)}
             />
 
-            <TextField select label="گروه" fullWidth value={form.group || ''} onChange={(e) => handleChange('group', e.target.value)}>
+            {/* GROUP */}
+            <TextField
+                select
+                label="گروه"
+                fullWidth
+                value={form.group || ''}
+                onChange={(e) => {
+                    handleChange('group', e.target.value);
+
+                    // reset category when group changes
+                    handleChange('category', '');
+                }}
+            >
                 {CATEGORY_GROUP.map((item) => (
                     <MenuItem key={item.value} value={item.value}>
                         {item.label}
@@ -79,6 +92,7 @@ export default function AddProductForm({
                 ))}
             </TextField>
 
+            {/* CATEGORY */}
             <TextField
                 select
                 label="کتگوری"
@@ -94,6 +108,7 @@ export default function AddProductForm({
                 ))}
             </TextField>
 
+            {/* GENDER */}
             <TextField select label="جنسیت" fullWidth value={form.gender} onChange={(e) => handleChange('gender', e.target.value)}>
                 <MenuItem value="none">بدون جنسیت</MenuItem>
                 <MenuItem value="male">مردانه</MenuItem>
@@ -102,18 +117,26 @@ export default function AddProductForm({
                 <MenuItem value="girl_kids">بچگانه دخترانه</MenuItem>
             </TextField>
 
+            {/* BRAND */}
             <TextField fullWidth label="نام برند" value={form.brand?.name || ''} onChange={(e) => handleBrandChange(e.target.value)} />
 
+            {/* SIZES */}
             <Box>
                 <div className="flex gap-4">
+                    {/* SIZE */}
                     <TextField
                         fullWidth
                         label="سایز"
                         value={sizeInput.size}
-                        onChange={(e) => setSizeInput((p) => ({ ...p, size: e.target.value }))}
+                        onChange={(e) =>
+                            setSizeInput((p) => ({
+                                ...p,
+                                size: e.target.value,
+                            }))
+                        }
                     />
 
-                    {/* COLOR PICKER */}
+                    {/* COLOR */}
                     <Box
                         sx={{
                             display: 'flex',
@@ -122,13 +145,15 @@ export default function AddProductForm({
                             minWidth: 120,
                         }}
                     >
-                        {/* select color */}
-
                         <FormControl fullWidth size="small">
                             <Select
                                 value={sizeInput.color}
-                                label="Color"
-                                onChange={(e) => setSizeInput((p) => ({ ...p, color: e.target.value }))}
+                                onChange={(e) =>
+                                    setSizeInput((p) => ({
+                                        ...p,
+                                        color: e.target.value,
+                                    }))
+                                }
                                 sx={{
                                     borderRadius: 2,
                                     '& .MuiSelect-select': {
@@ -159,6 +184,7 @@ export default function AddProductForm({
                                                 flexShrink: 0,
                                             }}
                                         />
+
                                         {c.name}
                                     </MenuItem>
                                 ))}
@@ -166,6 +192,7 @@ export default function AddProductForm({
                         </FormControl>
                     </Box>
 
+                    {/* STOCK */}
                     <TextField
                         fullWidth
                         type="number"
@@ -179,18 +206,21 @@ export default function AddProductForm({
                         }
                     />
 
+                    {/* ADD BTN */}
                     <Button variant="contained" className="whitespace-nowrap" onClick={addSize}>
                         افزودن
                     </Button>
                 </div>
+
+                {/* SIZE LIST */}
                 <div className="flex flex-col gap-3 mt-3">
                     {form.sizes.map((s, i) => (
-                        <div key={i} className="flex items-center justify-between px-3 py-3 rounded-xl border border-gray-200 transition">
-                            {/* INFO */}
+                        <div key={i} className="flex items-center justify-between px-3 py-3 rounded-xl border border-gray-200">
                             <div className="flex items-center gap-4 text-sm text-gray-700">
                                 {/* SIZE */}
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-400">سایز</span>
+
                                     <span className="font-semibold text-gray-800">{s.size}</span>
                                 </div>
 
@@ -199,6 +229,7 @@ export default function AddProductForm({
                                 {/* STOCK */}
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-400">موجودی</span>
+
                                     <span className="font-semibold text-gray-800">{s.stock}</span>
                                 </div>
 
@@ -209,16 +240,22 @@ export default function AddProductForm({
                                     <span className="text-xs text-gray-400">رنگ</span>
 
                                     <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: s.color || 'white' }} />
+                                        <div
+                                            className="w-4 h-4 rounded-full border"
+                                            style={{
+                                                backgroundColor: s.color || 'white',
+                                            }}
+                                        />
+
                                         <span className="font-semibold text-gray-800 text-xs">{s.color}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* ACTION */}
+                            {/* REMOVE */}
                             <button
                                 onClick={() => removeSize(i)}
-                                className="text-sm px-3 py-1.5 rounded-lg text-[#ff0000] bg-[#ff000018] transition font-medium"
+                                className="text-sm px-3 py-1.5 rounded-lg text-[#ff0000] bg-[#ff000018] font-medium"
                             >
                                 حذف
                             </button>
@@ -227,17 +264,20 @@ export default function AddProductForm({
                 </div>
             </Box>
 
+            {/* IMAGE */}
             <div className="flex items-center justify-center">
                 <UploadImg setForm={setForm} form={form} />
             </div>
 
+            {/* ACTIVE */}
             <FormControlLabel
                 control={<Switch checked={form.isActive} onChange={(e) => handleChange('isActive', e.target.checked)} />}
                 label={form.isActive ? 'قابل فروش' : 'غیرقابل فروش'}
             />
 
+            {/* SUBMIT */}
             <Button variant="contained" fullWidth onClick={submitHandler}>
-                {formType == 'add' ? 'ایجاد محصول' : 'اعمال تغییرات'}
+                {formType === 'add' ? 'ایجاد محصول' : 'اعمال تغییرات'}
             </Button>
         </div>
     );

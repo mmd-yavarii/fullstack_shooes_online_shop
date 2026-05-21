@@ -4,10 +4,11 @@ import { verifyToken } from '@/helper/jwt';
 
 function createSlug(title) {
     return title
-        .toLowerCase()
+        .toString()
         .trim()
+        .toLowerCase()
         .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
+        .replace(/[^\w\-]+/g, '');
 }
 
 export default async function handler(req, res) {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
         });
     }
 
-    // 🔒 AUTH CHECK
+    // AUTH
     const user = verifyToken(req);
 
     if (!user) {
@@ -29,31 +30,64 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const { title, description, price, discount, category, brand, gender, sizes, images, isActive, group } = req.body;
+        const { title, description, price, discount = 0, category, brand, gender, sizes, images, isActive = true, group } = req.body;
 
-        // validation
-        if (!title || !description || !price || !category || !brand?.name || !gender || !sizes?.length || !images?.length || !group) {
+        // VALIDATION
+        if (!title || !description || price === undefined || !category || !group || !brand?.name || !gender) {
             return res.status(400).json({
-                message: 'Invalid data - missing required fields',
+                message: 'Missing required fields',
             });
         }
 
-        // create slug
+        // price validation
+        if (Number(price) < 0) {
+            return res.status(400).json({
+                message: 'Invalid price',
+            });
+        }
+
+        // discount validation
+        if (Number(discount) < 0 || Number(discount) > 100) {
+            return res.status(400).json({
+                message: 'Discount must be between 0 and 100',
+            });
+        }
+
+        // sizes validation
+        if (!Array.isArray(sizes) || sizes.length === 0) {
+            return res.status(400).json({
+                message: 'At least one size is required',
+            });
+        }
+
+        // images validation
+        if (!Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({
+                message: 'At least one image is required',
+            });
+        }
+
+        // slug
         let slug = createSlug(title);
 
-        // جلوگیری از slug تکراری
+        // fallback slug
+        if (!slug) {
+            slug = `product-${Date.now()}`;
+        }
+
+        // unique slug
         const existingProduct = await Product.findOne({ slug });
 
         if (existingProduct) {
             slug = `${slug}-${Date.now()}`;
         }
 
-        // create product
+        // CREATE PRODUCT
         const product = await Product.create({
-            title,
-            description,
+            title: title.trim(),
+            description: description.trim(),
             price: Number(price),
-            discount: Number(discount || 0),
+            discount: Number(discount),
             category,
             group,
             gender,
