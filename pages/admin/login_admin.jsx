@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { Box, Paper, Typography, TextField, Button, InputAdornment, IconButton, Alert } from '@mui/material';
@@ -10,6 +10,26 @@ import Link from 'next/link';
 
 function LoginAdmin() {
     const router = useRouter();
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (data.valid) {
+                    router.replace('/admin/products/');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);

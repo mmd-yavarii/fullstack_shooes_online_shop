@@ -72,6 +72,11 @@ export function CartProvider({ children }) {
         setCart(updated);
     };
 
+    // length
+    const cartItemsCount = cart.reduce((sum, item) => {
+        return sum + item.quantity;
+    }, 0);
+
     // delete item from cart handeler
     const removeFromCart = (productId, size, color) => {
         setCart(cart.filter((item) => !(item.productId === productId && item.size === size && item.color === color)));
@@ -105,6 +110,8 @@ export function CartProvider({ children }) {
                 totalOriginalPrice,
                 totalDiscount,
                 totalPrice,
+
+                cartItemsCount,
             }}
         >
             {children}

@@ -1,7 +1,9 @@
+import Product from '@/models/Product';
+import BanerImg from '@/models/BanerImg';
 import fs from 'fs';
 import path from 'path';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -9,10 +11,12 @@ export default function handler(req, res) {
     try {
         const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
 
-        // read folder
         const files = fs.readdirSync(uploadsPath);
 
-        // فقط عکس‌ها
+        const products = await Product.find().select('images');
+        const banners = await BanerImg.find().select('image');
+        const allProductImages = [...products.flatMap((p) => p.images || []), ...banners.map((b) => b.image)];
+
         const images = files
             .filter(
                 (file) => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.webp') || file.endsWith('.gif')
@@ -20,11 +24,14 @@ export default function handler(req, res) {
             .map((file) => ({
                 name: file,
                 url: `/uploads/${file}`,
+                idProductImg: allProductImages.includes(`/uploads/${file}`),
             }));
 
         return res.status(200).json({
             count: images.length,
             images,
+
+            allProductImages,
         });
     } catch (error) {
         console.error(error);

@@ -1,10 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
 import AddProductForm from '@/components/admin/AddOrEditProductForm';
 import { useRouter } from 'next/router';
 
 export default function AddProduct() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
+
     const getInitialForm = () => ({
         title: '',
         description: '',
@@ -119,6 +142,8 @@ export default function AddProduct() {
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const res = await fetch('/api/product/add', {
                 method: 'POST',
@@ -143,6 +168,8 @@ export default function AddProduct() {
                 type: 'error',
                 message: 'خطا در ثبت محصول',
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -167,6 +194,7 @@ export default function AddProduct() {
                 sizeInput={sizeInput}
                 setSizeInput={setSizeInput}
                 addSize={addSize}
+                isLoading={isLoading}
                 removeSize={removeSize}
                 submitHandler={submitHandler}
                 formType={'add'}

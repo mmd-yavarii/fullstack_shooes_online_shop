@@ -1,9 +1,32 @@
 import AdminProductCard from '@/components/admin/adminProductCard';
 import { Box, Button, CircularProgress, TextField, Select, MenuItem, InputLabel, FormControl, Chip } from '@mui/material';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 function Index() {
+    const router = useRouter();
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
+
     const [products, setProducts] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [loading, setLoading] = useState(true);

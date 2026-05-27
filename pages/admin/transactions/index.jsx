@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, { useEffect, useState, useMemo } from 'react';
 
 import { CircularProgress, Box, Typography, TextField, Stack, Chip } from '@mui/material';
@@ -6,11 +7,33 @@ import TransactionCard from '@/components/admin/TransactionCard';
 import TransactionSummaryCard from '@/components/admin/TransactionSummaryCard';
 
 function Index() {
+    const router = useRouter();
+
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
 
     useEffect(() => {
         const controller = new AbortController();

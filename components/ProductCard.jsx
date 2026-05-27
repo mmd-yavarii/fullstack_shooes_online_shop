@@ -10,7 +10,9 @@ function ProductCard({ data }) {
     return (
         <div className="rounded-xl p-2 sm:p-3 w-full sm:w-48 md:w-52  shadow-lg relative" style={{ border: '1px solid #00000017' }}>
             {isDiscoun && (
-                <div className="bg-red-500 shadow-xl shadow-red-500/30 text-white w-fit rounded-full absolute top-0 right-0 px-2">OFF 30%</div>
+                <div className="bg-red-500 shadow-xl shadow-red-500/30 text-white w-fit rounded-full absolute top-0 right-0 px-2">
+                    OFF {data.discount}%
+                </div>
             )}
             {/* تصویر */}
 

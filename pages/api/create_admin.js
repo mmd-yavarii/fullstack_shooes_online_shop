@@ -19,8 +19,7 @@ export default async function handler(req, res) {
 
         const userCount = await User.countDocuments();
 
-        // حداکثر 3 نفر
-        if (userCount >= 3) {
+        if (userCount >= 2) {
             return res.status(403).json({
                 message: 'ظرفیت ثبت‌نام تکمیل شده است',
             });

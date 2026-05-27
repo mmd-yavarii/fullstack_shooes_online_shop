@@ -1,5 +1,3 @@
-// pages/edit_product/[id].js
-
 import { useState, useEffect } from 'react';
 import { Snackbar, Alert, CircularProgress, Box } from '@mui/material';
 
@@ -9,8 +7,29 @@ import AddOrEditProductForm from '@/components/admin/AddOrEditProductForm';
 
 export default function EditProduct() {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     const { id } = router.query;
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
 
     // initial form
     const getInitialForm = () => ({
@@ -223,6 +242,8 @@ export default function EditProduct() {
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const res = await fetch(`/api/product/edit/${id}`, {
                 method: 'PUT',
@@ -279,6 +300,8 @@ export default function EditProduct() {
                 type: 'error',
                 message: 'خطا در ویرایش محصول',
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -341,6 +364,7 @@ export default function EditProduct() {
                 addSize={addSize}
                 removeSize={removeSize}
                 submitHandler={submitHandler}
+                isLoading={isLoading}
                 formType="edit"
             />
         </>

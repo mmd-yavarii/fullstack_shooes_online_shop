@@ -18,8 +18,6 @@ function BannerSlider() {
                 const res = await fetch('/api/baner/get-baner-imgs');
                 const data = await res.json();
 
-                if (!res.ok) throw new Error(data.message);
-
                 setBanners(data.baners || []);
             } catch (err) {
                 console.error('Failed to load banners', err);

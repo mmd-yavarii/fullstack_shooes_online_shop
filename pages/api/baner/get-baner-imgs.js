@@ -1,5 +1,3 @@
-// pages/api/baner/get-baner-imgs.js
-
 import connectDB from '@/lib/db';
 import BanerImg from '@/models/BanerImg';
 

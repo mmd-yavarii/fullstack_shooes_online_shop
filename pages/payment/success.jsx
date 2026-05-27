@@ -14,9 +14,16 @@ function Success() {
     const searchParams = useSearchParams();
 
     const status = searchParams.get('status');
+    const pay = searchParams.get('pay');
+
+    async function reduceProductQty() {
+        const response = await fetch(`/api/product/reduce-bue-qty/${pay}`);
+        await response.data;
+    }
 
     useEffect(() => {
         if (status === 'success') {
+            reduceProductQty();
             clearCart();
         }
     }, [status, clearCart]);
@@ -135,6 +142,20 @@ function Success() {
                     </Typography>
 
                     <Typography
+                        variant="h3"
+                        fontWeight={900}
+                        sx={{
+                            mb: 1,
+                            fontSize: {
+                                xs: '1rem',
+                                sm: '1.2rem',
+                            },
+                        }}
+                    >
+                        شماره پیگیری پرداخت :‌ {pay}
+                    </Typography>
+
+                    <Typography
                         sx={{
                             opacity: 0.9,
                             fontSize: 15,
@@ -183,38 +204,6 @@ function Success() {
 
                     {/* ACTIONS */}
                     <Stack spacing={2}>
-                        <Link
-                            href="/orders"
-                            style={{
-                                width: '100%',
-                                textDecoration: 'none',
-                            }}
-                        >
-                            <Button
-                                fullWidth
-                                size="large"
-                                variant="contained"
-                                startIcon={<ReceiptLongRoundedIcon className="ml-4" />}
-                                sx={{
-                                    py: 1.7,
-                                    borderRadius: 3,
-                                    fontWeight: 800,
-                                    fontSize: 15,
-                                    background: 'linear-gradient(135deg, #15803d 0%, #22c55e 100%)',
-                                    boxShadow: '0 10px 25px rgba(34,197,94,0.3)',
-
-                                    '&:hover': {
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: '0 14px 30px rgba(34,197,94,0.4)',
-                                    },
-
-                                    transition: 'all 0.25s ease',
-                                }}
-                            >
-                                پیگیری سفارش
-                            </Button>
-                        </Link>
-
                         <Link
                             href="/"
                             style={{

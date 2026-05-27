@@ -57,7 +57,8 @@ export default async function handler(req, res) {
 
             await transaction.save();
 
-            return res.redirect(`/payment/success?status=success`);
+            const refId = response.data.ref_id?.toString();
+            return res.redirect(`/payment/success?status=success&pay=${refId}`);
         }
 
         // failed

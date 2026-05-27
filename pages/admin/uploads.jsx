@@ -1,11 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress, Card, CardMedia, Typography, Box, Button, Stack } from '@mui/material';
+import { CircularProgress, Card, CardMedia, Box } from '@mui/material';
+import { useRouter } from 'next/router';
 
 function UploadsPage() {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [deleting, setDeleting] = useState(null); // اسم عکس در حال حذف
+    const [deleting, setDeleting] = useState(null);
+
+    const router = useRouter();
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
 
     useEffect(() => {
         fetchImages();
@@ -106,13 +129,19 @@ function UploadsPage() {
                     >
                         <CardMedia component="img" image={img.url} alt={img.name} sx={{ height: 200, objectFit: 'cover' }} />
 
-                        <button
-                            className="text-red-500 w-full p-2 bg-red-50 cursor-pointer"
-                            disabled={deleting === img.url}
-                            onClick={() => handleDelete(img.url)}
-                        >
-                            {deleting === img.url ? 'در حال حذف...' : 'حذف'}
-                        </button>
+                        {img.idProductImg ? (
+                            <p className="text-gray-500 text-center w-full p-2 bg-gray-50 cursor-pointer">
+                                این تصویر در محصولات استفاده شده و قابل حذف نیست
+                            </p>
+                        ) : (
+                            <button
+                                className="text-red-500 w-full p-2 bg-red-50 cursor-pointer"
+                                disabled={deleting === img.url}
+                                onClick={() => handleDelete(img.url)}
+                            >
+                                {deleting === img.url ? 'در حال حذف...' : 'حذف'}
+                            </button>
+                        )}
                     </Card>
                 ))}
             </Box>

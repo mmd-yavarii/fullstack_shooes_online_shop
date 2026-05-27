@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { Box, Paper, Typography, TextField, Button, InputAdornment, IconButton, Alert } from '@mui/material';
@@ -16,11 +16,36 @@ function LoginAdmin() {
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [checkingAuth, setCheckingAuth] = useState(true);
 
     const [form, setForm] = useState({
         username: '',
         password: '',
     });
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (data.valid) {
+                    router.replace('/admin/products');
+                    return;
+                }
+            } catch (err) {
+                console.log(err);
+            } finally {
+                setCheckingAuth(false);
+            }
+        }
+
+        checkAuth();
+    }, []);
 
     const handleChange = (key, value) => {
         setForm((prev) => ({
@@ -31,8 +56,6 @@ function LoginAdmin() {
 
     const handleCreateAdmin = async (e) => {
         e.preventDefault();
-
-        console.log('ارسال فرم:', form);
 
         setError('');
         setSuccess('');
@@ -49,27 +72,25 @@ function LoginAdmin() {
 
             const data = await res.json();
 
-            console.log('پاسخ سرور:', data);
-
             if (!res.ok) {
                 throw new Error(data.message || 'Create admin failed');
             }
 
             setSuccess('ادمین با موفقیت ساخته شد');
 
-            setForm({ username: '', password: '' });
-
-            // redirect بعد از کمی تأخیر برای UX بهتر
             setTimeout(() => {
                 router.push('/admin/login_admin');
             }, 1200);
         } catch (err) {
-            console.log('خطا:', err);
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
+
+    if (checkingAuth) {
+        return <Box sx={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>در حال بررسی وضعیت ورود...</Box>;
+    }
 
     return (
         <Box
@@ -110,7 +131,6 @@ function LoginAdmin() {
                         {error}
                     </Alert>
                 )}
-
                 {success && (
                     <Alert severity="success" sx={{ mb: 2 }}>
                         {success}
@@ -137,7 +157,7 @@ function LoginAdmin() {
                         }}
                     />
 
-                    <Button type="submit" variant="contained" disabled={loading} sx={{ py: 1.5, borderRadius: 2 }}>
+                    <Button type="submit" variant="contained" disabled={loading}>
                         {loading ? 'در حال ایجاد ادمین...' : 'ایجاد ادمین'}
                     </Button>
 

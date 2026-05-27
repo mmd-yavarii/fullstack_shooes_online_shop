@@ -80,6 +80,11 @@ const transactionSchema = new mongoose.Schema(
         cardPan: String,
 
         paidAt: Date,
+
+        inventory_updated: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,

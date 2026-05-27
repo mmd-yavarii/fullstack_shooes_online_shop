@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { CircularProgress, Snackbar, Alert, Button } from '@mui/material';
+import { CircularProgress, Snackbar, Alert } from '@mui/material';
 
 import { useCart } from '@/context/CartContext';
 import ProductInfo from '@/components/productPage/ProductInfo';
@@ -20,16 +20,19 @@ function ProductPage() {
     const [selectedColor, setSelectedColor] = useState('');
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedImage, setSelectedImage] = useState('');
+    const [sizeId, setSizeId] = useState('');
 
     const [alert, setAlert] = useState({
         open: false,
         message: '',
+        type: 'success',
     });
 
-    const showAlert = (message) => {
+    const showAlert = (message, type = 'success') => {
         setAlert({
             open: true,
             message,
+            type,
         });
     };
 
@@ -66,37 +69,83 @@ function ProductPage() {
         return [...new Set(product.sizes.map((s) => s.color))];
     }, [product]);
 
-    // sizes
+    // sizes (based on selected color)
     const sizes = useMemo(() => {
         if (!product) return [];
-        return product.sizes.filter((s) => s.color === selectedColor).map((s) => s.size);
+
+        return product.sizes
+            .filter((s) => s.color === selectedColor)
+            .map((s) => ({
+                size: s.size,
+                stock: s.stock,
+            }));
     }, [product, selectedColor]);
+
+    const totalStock = useMemo(() => {
+        if (!product) return 0;
+        return product.sizes.reduce((acc, i) => acc + i.stock, 0);
+    }, [product]);
 
     useEffect(() => {
         if (!product || !selectedColor) return;
 
-        const first = product.sizes.find((s) => s.color === selectedColor);
+        const available = product.sizes.filter((s) => s.color === selectedColor && s.stock > 0);
 
-        if (first) setSelectedSize(first.size);
-    }, [selectedColor]);
+        if (available.length) {
+            setSelectedSize(available[0].size);
+        } else {
+            setSelectedSize('');
+        }
+    }, [selectedColor, product]);
 
     const finalPrice = useMemo(() => {
         if (!product) return 0;
         return product.price - (product.price * (product.discount || 0)) / 100;
     }, [product]);
 
+    const cartItem = useMemo(() => {
+        if (!product) return undefined;
+
+        return cart.find((item) => item.productId === product._id && item.color === selectedColor && item.size === selectedSize);
+    }, [cart, product, selectedColor, selectedSize]);
+
+    const getVariant = () => {
+        if (!product) return null;
+
+        return product.sizes.find((i) => i.size === selectedSize && i.color === selectedColor);
+    };
+
     const handleAdd = () => {
-        if (!selectedColor || !selectedSize) return;
+        if (!selectedColor || !selectedSize) {
+            showAlert('لطفاً رنگ و سایز را انتخاب کنید', 'error');
+            return;
+        }
+
+        const variant = getVariant();
+
+        if (!variant) return;
+
+        const stock = variant.stock;
+        const currentQty = cartItem?.quantity || 0;
+
+        if (stock === 0) {
+            showAlert('این محصول ناموجود است', 'error');
+            return;
+        }
+
+        if (currentQty >= stock) {
+            showAlert('بیشتر از موجودی نمی‌توان اضافه کرد', 'error');
+            return;
+        }
 
         addToCart(product, {
             color: selectedColor,
             size: selectedSize,
+            sizeId: variant._id,
         });
 
-        showAlert('به سبد خرید اضافه شد');
+        showAlert('به سبد خرید اضافه شد', 'success');
     };
-
-    const cartItem = cart.find((item) => item.productId === product?._id && item.color === selectedColor && item.size === selectedSize);
 
     if (loading) {
         return (
@@ -110,23 +159,16 @@ function ProductPage() {
 
     return (
         <div className="max-w-[1100px] mx-auto p-4 pb-24 flex flex-col lg:flex-row gap-8">
-            {/* 🔥 ALERT TOP */}
+            {/* ALERT */}
             <Snackbar
                 open={alert.open}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                 autoHideDuration={2500}
-                onClose={() =>
-                    setAlert((p) => ({
-                        ...p,
-                        open: false,
-                    }))
-                }
+                onClose={() => setAlert((p) => ({ ...p, open: false }))}
             >
                 <Alert
-                    severity="success"
+                    severity={alert.type}
+                    iconSpacing={2}
                     sx={{
                         width: '100%',
                         maxWidth: 450,
@@ -136,18 +178,21 @@ function ProductPage() {
                         px: 2,
                         borderRadius: 2,
                         boxShadow: 4,
+                        '& .MuiAlert-message': {
+                            paddingRight: 2,
+                        },
                     }}
                 >
-                    به سبد خرید اضافه شد
+                    {alert.message}
                 </Alert>
             </Snackbar>
 
-            {/* 📸 RIGHT (or top in mobile) */}
+            {/* MEDIA */}
             <div className="flex-1 flex flex-col gap-4">
                 <ProductMedia images={product.images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
             </div>
 
-            {/* 🧾 LEFT */}
+            {/* INFO + ACTIONS */}
             <div className="flex-1 flex flex-col gap-6">
                 <ProductInfo product={product} finalPrice={finalPrice} />
 
@@ -156,36 +201,15 @@ function ProductPage() {
                     sizes={sizes}
                     selectedColor={selectedColor}
                     setSelectedColor={setSelectedColor}
+                    setSizeId={setSizeId}
                     selectedSize={selectedSize}
                     setSelectedSize={setSelectedSize}
                     cartItem={cartItem}
                     handleAdd={handleAdd}
                     decreaseQuantity={decreaseQuantity}
                     product={product}
+                    totalStock={totalStock}
                 />
-            </div>
-
-            {/* 🔥 STICKY BOTTOM BUTTON */}
-            <div className="fixed bottom-0 left-0 right-0 z-50  p-3">
-                <div className="max-w-[1100px] mx-auto">
-                    {cartItem ? (
-                        <div className="flex items-center justify-center">
-                            <div className="flex gap-3 items-center w-fit justify-center bg-[#850000] p-2 rounded-[10px] text-white font-bold text-[15px]">
-                                <button className="text-2xl" onClick={() => decreaseQuantity(product._id, selectedSize, selectedColor)}>
-                                    -
-                                </button>
-                                <span className="mx-6">{cartItem.quantity}</span>
-                                <button onClick={handleAdd} className="text-2xl">
-                                    +
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <Button variant="contained" className="w-full" onClick={handleAdd}>
-                            افزودن به سبد خرید
-                        </Button>
-                    )}
-                </div>
             </div>
         </div>
     );

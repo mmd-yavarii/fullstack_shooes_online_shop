@@ -16,6 +16,7 @@ export default function AddProductForm({
     addSize,
     removeSize,
     submitHandler,
+    isLoading,
     formType,
 }) {
     const getGroupOptions = (group) => {
@@ -276,8 +277,8 @@ export default function AddProductForm({
             />
 
             {/* SUBMIT */}
-            <Button variant="contained" fullWidth onClick={submitHandler}>
-                {formType === 'add' ? 'ایجاد محصول' : 'اعمال تغییرات'}
+            <Button variant="contained" fullWidth onClick={submitHandler} disabled={isLoading}>
+                {isLoading ? 'لطفا صبر کنید ...' : formType === 'add' ? 'ایجاد محصول' : 'اعمال تغییرات'}
             </Button>
         </div>
     );

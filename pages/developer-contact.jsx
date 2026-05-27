@@ -97,7 +97,7 @@ function DeveloperContact() {
                                 <ContactItem
                                     icon={<PhoneRoundedIcon />}
                                     title="تلفن"
-                                    value="0903 633 0147"
+                                    value="0903-633-0147"
                                     href="tel:09036330147"
                                     actionHint="تماس مستقیم"
                                 />

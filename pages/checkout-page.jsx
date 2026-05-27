@@ -9,7 +9,7 @@ function CheckoutPage() {
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
-        severity: 'success', // success | error | warning | info
+        severity: 'success',
     });
 
     const showSnackbar = (message, severity = 'info') => {
@@ -81,7 +81,6 @@ function CheckoutPage() {
         };
 
         try {
-            // 1. ساخت سفارش
             const response = await fetch('/api/transaction/add', {
                 method: 'POST',
                 headers: {
@@ -97,9 +96,7 @@ function CheckoutPage() {
             }
 
             const order = data.data;
-            console.log(order);
 
-            // 2. درخواست پرداخت از زرین‌پال
             const paymentRes = await fetch('/api/payment/request', {
                 method: 'POST',
                 headers: {
@@ -145,7 +142,12 @@ function CheckoutPage() {
                     onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
                     severity={snackbar.severity}
                     variant="filled"
-                    sx={{ width: '100%' }}
+                    sx={{
+                        width: '100%',
+                        '& .MuiAlert-message': {
+                            paddingRight: 2,
+                        },
+                    }}
                 >
                     {snackbar.message}
                 </Alert>

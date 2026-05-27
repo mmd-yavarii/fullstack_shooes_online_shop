@@ -15,12 +15,35 @@ import {
     DialogActions,
     TextField,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 
 import React, { useEffect, useState } from 'react';
 
 function AddBaner() {
+    const router = useRouter();
+
+    useEffect(() => {
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
+
+                const data = await res.json();
+
+                if (!data.valid) {
+                    router.replace('/admin/login_admin');
+                }
+            } catch (err) {
+                router.back();
+            }
+        }
+
+        checkAuth();
+    }, []);
+
     const [form, setForm] = useState({
-        images: [], // 👈 مهم: مطابق UploadImg
+        images: [],
         title: '',
         description: '',
     });
