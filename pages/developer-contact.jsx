@@ -1,12 +1,12 @@
 import React from 'react';
-
 import { Box, Typography, Stack, Divider, Paper, Container } from '@mui/material';
 
 import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import LocationOnRoundedIcon from '@mui/icons-material/LocationOnRounded';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
-function About() {
+function DeveloperContact() {
     return (
         <Box
             sx={{
@@ -28,9 +28,9 @@ function About() {
                             overflow: 'hidden',
                             borderRadius: '36px',
                             p: { xs: 3, md: 7 },
-                            background: 'linear-gradient(135deg, #ffffff, #fff5f6)',
-                            border: '1px solid rgba(128,0,32,0.08)',
-                            boxShadow: '0 20px 60px rgba(128,0,32,0.08)',
+                            background: 'linear-gradient(135deg, #ffffff, #f3f8ff)',
+                            border: '1px solid rgba(30, 90, 200, 0.12)',
+                            boxShadow: '0 20px 60px rgba(30, 90, 200, 0.10)',
                         }}
                     >
                         <Box
@@ -41,7 +41,7 @@ function About() {
                                 width: 320,
                                 height: 320,
                                 borderRadius: '50%',
-                                background: 'radial-gradient(circle, rgba(128,0,32,0.12), transparent)',
+                                background: 'radial-gradient(circle, rgba(30, 90, 200, 0.15), transparent)',
                                 filter: 'blur(20px)',
                             }}
                         />
@@ -51,35 +51,32 @@ function About() {
                                 variant="h2"
                                 fontWeight={900}
                                 sx={{
-                                    color: '#4a0013',
+                                    color: '#0d2b5c',
                                     fontSize: { xs: '2.2rem', md: '4.2rem' },
                                     lineHeight: 1.2,
                                 }}
                             >
-                                درباره ژییانو
+                                ارتباط با توسعه‌دهنده
                             </Typography>
 
                             <Divider
                                 sx={{
                                     width: 110,
                                     borderBottomWidth: 5,
-                                    borderColor: '#800020',
+                                    borderColor: '#1e5ac8',
                                     borderRadius: 10,
                                 }}
                             />
 
                             <Typography
                                 sx={{
-                                    color: '#6b4b53',
+                                    color: '#4a5a75',
                                     lineHeight: 2.3,
                                     fontSize: { xs: '1rem', md: '1.1rem' },
                                     maxWidth: '850px',
                                 }}
                             >
-                                فروشگاه ژییانو با بیش از ۱۰ سال سابقه فعالیت، تجربه خرید امن، سریع و باکیفیت را برای مشتریان فراهم می‌کند.
-                                <br />
-                                <br />
-                                هدف ما ایجاد اعتماد، کیفیت بالا و پشتیبانی واقعی است.
+                                برای همکاری، پروژه‌های فریلنسری یا سوالات فنی می‌توانید از طریق راه‌های زیر ارتباط بگیرید.
                             </Typography>
                         </Stack>
                     </Paper>
@@ -91,34 +88,42 @@ function About() {
                             borderRadius: '36px',
                             overflow: 'hidden',
                             background: '#ffffff',
-                            border: '1px solid rgba(128,0,32,0.08)',
-                            boxShadow: '0 20px 60px rgba(128,0,32,0.06)',
+                            border: '1px solid rgba(30, 90, 200, 0.12)',
+                            boxShadow: '0 20px 60px rgba(30, 90, 200, 0.08)',
                         }}
                     >
                         <Box sx={{ p: { xs: 3, md: 6 } }}>
                             <Stack spacing={3}>
                                 <ContactItem
                                     icon={<PhoneRoundedIcon />}
-                                    title="تلفن تماس"
-                                    actionHint="برای تماس مستقیم کلیک کنید"
-                                    value="0912-123-4567"
-                                    href="tel:09121234567"
+                                    title="تلفن"
+                                    value="0903 633 0147"
+                                    href="tel:09036330147"
+                                    actionHint="تماس مستقیم"
                                 />
 
                                 <ContactItem
                                     icon={<EmailRoundedIcon />}
                                     title="ایمیل"
-                                    actionHint="برای ارسال ایمیل کلیک کنید"
-                                    value="support@zhiyano.com"
-                                    href="mailto:support@zhiyano.com"
+                                    value="mdyavarii@gmail.com"
+                                    href="mailto:mdyavarii@gmail.com"
+                                    actionHint="ارسال ایمیل"
                                 />
 
                                 <ContactItem
-                                    icon={<LocationOnRoundedIcon />}
-                                    title="آدرس"
-                                    value="ایران، تهران"
-                                    href="https://www.google.com/maps/search/?api=1&query=Kermanshah,Iran"
-                                    actionHint="برای مسیر‌یابی کلیک کنید"
+                                    icon={<GitHubIcon />}
+                                    title="گیت‌هاب"
+                                    value="github.com/mmd-yavarii"
+                                    href="https://github.com/mmd-yavarii"
+                                    actionHint="مشاهده پروژه‌ها"
+                                />
+
+                                <ContactItem
+                                    icon={<LinkedInIcon />}
+                                    title="لینکدین"
+                                    value="linkedin.com/in/mmd-yavarii"
+                                    href="https://linkedin.com/in/mmd-yavarii"
+                                    actionHint="ارتباط حرفه‌ای"
                                 />
                             </Stack>
 
@@ -127,18 +132,18 @@ function About() {
                                     mt: 6,
                                     p: 3,
                                     borderRadius: '24px',
-                                    background: '#fff5f6',
-                                    border: '1px solid rgba(128,0,32,0.08)',
+                                    background: '#f3f8ff',
+                                    border: '1px solid rgba(30, 90, 200, 0.12)',
                                 }}
                             >
                                 <Typography
                                     sx={{
                                         textAlign: 'center',
-                                        color: '#7a5c63',
+                                        color: '#4a5a75',
                                         lineHeight: 2,
                                     }}
                                 >
-                                    پاسخگویی همه روزه از ساعت ۹ صبح تا ۶ عصر
+                                    معمولاً پاسخ‌گویی کمتر از 24 ساعت انجام می‌شود
                                 </Typography>
                             </Box>
                         </Box>
@@ -156,44 +161,43 @@ function ContactItem({ icon, title, value, href, actionHint }) {
         <Box
             component={Wrapper}
             href={href}
+            target={href ? '_blank' : undefined}
             sx={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 2,
-                p: 2.5,
-                borderRadius: '24px',
-                background: '#fffafb',
-                border: '1px solid rgba(128,0,32,0.08)',
+                p: 2.2,
+                borderRadius: '22px',
+                background: '#f9fbff',
+                border: '1px solid rgba(30, 90, 200, 0.10)',
                 textDecoration: 'none',
                 color: 'inherit',
                 cursor: href ? 'pointer' : 'default',
-                transition: '0.3s',
-                position: 'relative',
+                transition: '0.25s',
 
                 '&:hover': href
                     ? {
-                          transform: 'translateY(-4px)',
-                          boxShadow: '0 15px 35px rgba(128,0,32,0.08)',
-                          background: '#fff1f3',
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 12px 30px rgba(30, 90, 200, 0.12)',
+                          background: '#eef5ff',
                       }
                     : {},
             }}
         >
-            {/* ICON (smaller) */}
+            {/* ICON SMALLER */}
             <Box
                 sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '14px',
+                    width: 34,
+                    height: 34,
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: 'linear-gradient(135deg, #800020, #a00028)',
+                    background: 'linear-gradient(135deg, #1e5ac8, #3a7bff)',
                     color: 'white',
-                    boxShadow: '0 8px 20px rgba(128,0,32,0.18)',
-
+                    boxShadow: '0 6px 16px rgba(30, 90, 200, 0.18)',
                     '& svg': {
-                        fontSize: '1.1rem',
+                        fontSize: '0.95rem',
                     },
                 }}
             >
@@ -204,8 +208,8 @@ function ContactItem({ icon, title, value, href, actionHint }) {
             <Box sx={{ flex: 1 }}>
                 <Typography
                     sx={{
-                        color: '#9b7a82',
-                        fontSize: '0.85rem',
+                        color: '#6a7a90',
+                        fontSize: '0.82rem',
                         fontWeight: 600,
                         display: 'flex',
                         alignItems: 'center',
@@ -214,26 +218,14 @@ function ContactItem({ icon, title, value, href, actionHint }) {
                 >
                     {title}
 
-                    {href && (
-                        <Box
-                            component="span"
-                            sx={{
-                                fontSize: '0.75rem',
-                                color: '#800020',
-                                fontWeight: 700,
-                                opacity: 0.8,
-                            }}
-                        >
-                            ({actionHint})
-                        </Box>
-                    )}
+                    {href && <span style={{ fontSize: '0.72rem', color: '#1e5ac8' }}>({actionHint})</span>}
                 </Typography>
 
                 <Typography
                     sx={{
-                        color: '#3d0010',
+                        color: '#0d2b5c',
                         fontWeight: 800,
-                        fontSize: '1.05rem',
+                        fontSize: '1rem',
                     }}
                 >
                     {value}
@@ -243,4 +235,4 @@ function ContactItem({ icon, title, value, href, actionHint }) {
     );
 }
 
-export default About;
+export default DeveloperContact;

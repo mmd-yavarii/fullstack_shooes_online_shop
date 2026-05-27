@@ -18,12 +18,12 @@ function ProductInfo({ product, finalPrice }) {
                             color: '#888',
                         }}
                     >
-                        {product.price.toLocaleString()} تومان
+                        {product.price.toLocaleString()} ریال
                     </Typography>
                 )}
 
                 <Typography color="primary" variant="h6">
-                    {finalPrice.toLocaleString()} تومان
+                    {finalPrice.toLocaleString()} ریال
                 </Typography>
 
                 {product.discount > 0 && (

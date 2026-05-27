@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { Box, Typography, Chip, Button, Stack } from '@mui/material';
 
 import Link from 'next/link';
+import { getColorNameByHex } from '@/helper/help';
+import TransactionPrint from './TransactionPrint';
 
 function TransactionCard({ data }) {
     const { fullName, phone, nationalCode, address, postalCode, totalPrice, orderStatus, items = [] } = data;
 
-    console.log(data);
+    const [open, setOpen] = useState(false);
 
     const [status, setStatus] = useState(orderStatus);
     const [loading, setLoading] = useState(false);
@@ -88,225 +90,249 @@ function TransactionCard({ data }) {
     };
 
     // PAYMENT UPDATE API
-    const updatePaymentStatus = async (newStatus) => {
-        try {
-            setLoading(true);
+    // const updatePaymentStatus = async (newStatus) => {
+    //     try {
+    //         setLoading(true);
 
-            const res = await fetch('/api/transaction/update-payment-status', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: data._id,
-                    paymentStatus: newStatus,
-                }),
-            });
+    //         const res = await fetch('/api/transaction/update-payment-status', {
+    //             method: 'PATCH',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({
+    //                 id: data._id,
+    //                 paymentStatus: newStatus,
+    //             }),
+    //         });
 
-            const result = await res.json();
+    //         const result = await res.json();
 
-            if (!res.ok) throw new Error(result.message || 'خطا');
+    //         if (!res.ok) throw new Error(result.message || 'خطا');
 
-            setPaymentStatusState(newStatus);
-        } catch (error) {
-            console.log(error);
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         setPaymentStatusState(newStatus);
+    //     } catch (error) {
+    //         console.log(error);
+    //         alert(error.message);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const style = getStyle(status);
     const isFinal = status !== 'pending';
 
     return (
-        <Box
-            sx={{
-                border: '1px solid #e5e7eb',
-                borderRadius: 3,
-                p: 2,
-                mb: 2,
-                backgroundColor: '#fff',
-                transition: '0.2s',
-                '&:hover': {
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.08)',
-                    transform: 'translateY(-2px)',
-                },
-            }}
-        >
-            <Typography variant="h6">{fullName}</Typography>
+        <>
+            {/* pdf data */}
+            {/* <TransactionPrint printRef={printRef} data={data} /> */}
+            <TransactionPrint open={open} onClose={() => setOpen(false)} data={data} />
 
-            {/* USER INFO */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mt: 1 }}>
-                <Typography variant="body2">شماره: {data.user.phone}</Typography>
-                <Typography variant="body2">نام و نام خانوادگی {data.user.fullName}</Typography>
-                <Typography variant="body2">کد پستی: {data.user.postalCode}</Typography>
+            {/* component style */}
+            <Box
+                sx={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 3,
+                    p: 2,
+                    mb: 2,
+                    backgroundColor: '#fff',
+                    transition: '0.2s',
+                    '&:hover': {
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.08)',
+                        transform: 'translateY(-2px)',
+                    },
+                }}
+            >
+                <div className="mb-5 flex items-center justify-between">
+                    <p className="font-bold text-[20px]">{data.user.fullName}</p>
+                    <button onClick={() => setOpen(true)} className="px-4 py-2 cursor-pointer rounded-lg bg-blue-600 text-white">
+                        چاپ PDF
+                    </button>
+                </div>
+
+                {/* USER INFO */}
 
                 <Box sx={{ gridColumn: '1 / -1', p: 1.5, bgcolor: '#f9fafb', borderRadius: 2 }}>
-                    <Typography variant="caption">آدرس</Typography>
-                    <Typography variant="body2">{data.user.address}</Typography>
+                    <Typography variant="body2">شماره: {data.user.phone}</Typography>
+                    <Typography variant="body2">کد پستی: {data.user.postalCode}</Typography>
+
+                    <Typography variant="caption">آدرس : {data.user.address}</Typography>
                 </Box>
-            </Box>
 
-            {/* PRICING */}
-            <Box sx={{ gridColumn: '1 / -1', p: 1.5, bgcolor: '#f9fafb', borderRadius: 2, mt: 2 }}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    قیمت کل: {(data.pricing?.totalOriginalPrice || 0).toLocaleString()} تومان
-                </Typography>
+                {/* PRICING */}
+                <Box sx={{ gridColumn: '1 / -1', p: 1.5, bgcolor: '#f9fafb', borderRadius: 2, mt: 2 }}>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        قیمت کل: {(data.pricing?.totalOriginalPrice || 0).toLocaleString()} ریال
+                    </Typography>
 
-                <Typography variant="body2" sx={{ color: 'red', my: 1 }}>
-                    مجموع تخفیف: {(data.pricing?.totalDiscount || 0).toLocaleString()} تومان
-                </Typography>
+                    <Typography variant="body2" sx={{ color: 'red', my: 1 }}>
+                        مجموع تخفیف: {(data.pricing?.totalDiscount || 0).toLocaleString()} ریال
+                    </Typography>
 
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    مبلغ نهایی: {(data.pricing?.totalFinalPrice || 0).toLocaleString()} تومان
-                </Typography>
-            </Box>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        مبلغ نهایی: {(data.pricing?.totalFinalPrice || 0).toLocaleString()} ریال
+                    </Typography>
+                </Box>
 
-            {/* ITEMS */}
-            <Box sx={{ mt: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, bgcolor: '#fcfcfc' }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    محصولات خریداری شده
-                </Typography>
+                {/* payments */}
+                <Box sx={{ gridColumn: '1 / -1', p: 1.5, bgcolor: '#f9fafb', borderRadius: 2, mt: 2 }}>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        شماره کارت : {data.cardPan || '---'}
+                    </Typography>
 
-                {items?.length === 0 ? (
-                    <Typography variant="body2">محصولی ثبت نشده</Typography>
-                ) : (
-                    <Stack spacing={1}>
-                        {items.map((item, index) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    p: 1,
-                                    border: '1px solid #eee',
-                                    borderRadius: 1,
-                                }}
-                            >
-                                <Box>
-                                    <Typography variant="body2" fontWeight={600}>
-                                        محصول: {item?.product?.title || 'نامشخص'}
-                                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        شماره پیگیری تراکنش : {data.refId || '---'}
+                    </Typography>
 
-                                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                                        <Box
-                                            sx={{
-                                                width: 14,
-                                                height: 14,
-                                                borderRadius: '50%',
-                                                backgroundColor: item?.color || '#ccc',
-                                            }}
-                                        />
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        تاریخ پرداخت : {data.paidAt ? new Date(data.paidAt).toLocaleString('fa-IR') : '---'}
+                    </Typography>
+                </Box>
 
-                                        <Typography variant="caption">سایز: {item?.size}</Typography>
+                {/* ITEMS */}
+                <Box sx={{ mt: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, bgcolor: '#fcfcfc' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        محصولات خریداری شده
+                    </Typography>
 
-                                        <Link href={`/product/${item?.product?._id}`}>دیدن محصول</Link>
+                    {items?.length === 0 ? (
+                        <Typography variant="body2">محصولی ثبت نشده</Typography>
+                    ) : (
+                        <Stack spacing={1}>
+                            {items.map((item, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        p: 1,
+                                        border: '1px solid #eee',
+                                        borderRadius: 1,
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography variant="body2" fontWeight={600}>
+                                            محصول: {item?.product?.title || 'نامشخص'}
+                                        </Typography>
+
+                                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                                            <Box
+                                                sx={{
+                                                    width: 14,
+                                                    height: 14,
+                                                    borderRadius: '50%',
+                                                    backgroundColor: item?.color || '#ccc',
+                                                }}
+                                            />
+
+                                            <Typography variant="caption">سایز: {item?.size}</Typography>
+
+                                            <Link href={`/product/${item?.product?._id}`}>دیدن محصول</Link>
+                                        </Box>
+                                    </Box>
+
+                                    <Box sx={{ textAlign: 'right' }}>
+                                        <Typography variant="body2">تعداد: {item?.quantity}</Typography>
+                                        <Typography fontWeight={600}>{(item?.finalPrice || 0).toLocaleString()} ریال</Typography>
                                     </Box>
                                 </Box>
-
-                                <Box sx={{ textAlign: 'right' }}>
-                                    <Typography variant="body2">تعداد: {item?.quantity}</Typography>
-                                    <Typography fontWeight={600}>{(item?.finalPrice || 0).toLocaleString()} تومان</Typography>
-                                </Box>
-                            </Box>
-                        ))}
-                    </Stack>
-                )}
-            </Box>
-
-            {/* ACTIONS */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, alignItems: 'center' }}>
-                <Box>
-                    <Chip
-                        label={getStatus(status)}
-                        sx={{
-                            backgroundColor: style.bg,
-                            color: style.color,
-                            fontWeight: 700,
-                            mr: 1,
-                            ml: 1,
-                        }}
-                    />
-
-                    <Chip
-                        label={getPaymentStatus(paymentStatusState)}
-                        sx={{
-                            backgroundColor: getPaymentStyle(paymentStatusState).bg,
-                            color: getPaymentStyle(paymentStatusState).color,
-                            fontWeight: 700,
-                        }}
-                    />
+                            ))}
+                        </Stack>
+                    )}
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    {/* ORDER STATUS */}
-                    {!isFinal && (
-                        <>
-                            <Button variant="contained" color="success" disabled={loading} onClick={() => updateStatus('confirmed')}>
-                                سفارش ارسال شد
-                            </Button>
-
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                disabled={loading}
-                                onClick={() => updateStatus('cancelled')}
-                                sx={{ color: 'red' }}
-                            >
-                                لغو سفارش
-                            </Button>
-                        </>
-                    )}
-
-                    {/* PAYMENT STATUS BUTTONS */}
-                    {paymentStatusState === 'paid' && (
-                        <Button
-                            variant="contained"
-                            disabled={loading}
-                            onClick={async () => {
-                                try {
-                                    setLoading(true);
-
-                                    const res = await fetch(`/api/payment/refund/${data._id}`, {
-                                        method: 'POST',
-                                    });
-
-                                    const result = await res.json();
-
-                                    if (!res.ok) {
-                                        throw new Error(result.message || 'خطا');
-                                    }
-
-                                    setPaymentStatusState('refunded');
-
-                                    await updateStatus('cancelled');
-
-                                    alert(result.message);
-                                } catch (error) {
-                                    console.log(error);
-                                    alert(error.message);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
+                {/* ACTIONS */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, alignItems: 'center' }}>
+                    <Box>
+                        <Chip
+                            label={getStatus(status)}
                             sx={{
-                                backgroundColor: '#dc2626',
-                                fontWeight: 600,
-                                px: 2,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                    backgroundColor: '#b91c1c',
-                                    boxShadow: '0 4px 12px rgba(220,38,38,0.3)',
-                                },
+                                backgroundColor: style.bg,
+                                color: style.color,
+                                fontWeight: 700,
+                                mr: 1,
+                                ml: 1,
                             }}
-                        >
-                            بازگشت وجه
-                        </Button>
-                    )}
+                        />
+
+                        <Chip
+                            label={getPaymentStatus(paymentStatusState)}
+                            sx={{
+                                backgroundColor: getPaymentStyle(paymentStatusState).bg,
+                                color: getPaymentStyle(paymentStatusState).color,
+                                fontWeight: 700,
+                            }}
+                        />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        {/* ORDER STATUS */}
+                        {!isFinal && (
+                            <>
+                                <Button variant="contained" color="success" disabled={loading} onClick={() => updateStatus('confirmed')}>
+                                    سفارش ارسال شد
+                                </Button>
+
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    disabled={loading}
+                                    onClick={() => updateStatus('cancelled')}
+                                    sx={{ color: 'red' }}
+                                >
+                                    لغو سفارش
+                                </Button>
+                            </>
+                        )}
+
+                        {/* PAYMENT STATUS BUTTONS */}
+                        {paymentStatusState === 'paid' && (
+                            <Button
+                                variant="contained"
+                                disabled={loading}
+                                onClick={async () => {
+                                    try {
+                                        setLoading(true);
+
+                                        const res = await fetch(`/api/payment/refund/${data._id}`, {
+                                            method: 'POST',
+                                        });
+
+                                        const result = await res.json();
+
+                                        if (!res.ok) {
+                                            throw new Error(result.message || 'خطا');
+                                        }
+
+                                        setPaymentStatusState('refunded');
+
+                                        await updateStatus('cancelled');
+
+                                        alert(result.message);
+                                    } catch (error) {
+                                        console.log(error);
+                                        alert(error.message);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                sx={{
+                                    backgroundColor: '#dc2626',
+                                    fontWeight: 600,
+                                    px: 2,
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    boxShadow: 'none',
+                                    '&:hover': {
+                                        backgroundColor: '#b91c1c',
+                                        boxShadow: '0 4px 12px rgba(220,38,38,0.3)',
+                                    },
+                                }}
+                            >
+                                بازگشت وجه انجام شد
+                            </Button>
+                        )}
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </>
     );
 }
 

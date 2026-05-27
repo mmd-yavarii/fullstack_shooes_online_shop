@@ -62,7 +62,7 @@ export default function CartList({ cart, removeFromCart }) {
 
                                 {/* PRICE (DISCOUNTED) */}
                                 <Typography color="primary" fontWeight={600} fontSize={14} mt={0.5}>
-                                    {finalPrice.toLocaleString()} تومان
+                                    {finalPrice.toLocaleString()} ریال
                                 </Typography>
 
                                 {/* SHOW DISCOUNT IF EXISTS */}
@@ -74,7 +74,7 @@ export default function CartList({ cart, removeFromCart }) {
                                             textDecoration: 'line-through',
                                         }}
                                     >
-                                        {item.price.toLocaleString()} تومان
+                                        {item.price.toLocaleString()} ریال
                                     </Typography>
                                 )}
 

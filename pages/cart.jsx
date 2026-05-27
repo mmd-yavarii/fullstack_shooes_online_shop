@@ -62,14 +62,14 @@ function CartPage() {
                 <div className="flex justify-between">
                     <Typography color="text.secondary">مجموع قیمت سبد</Typography>
 
-                    <Typography fontWeight={700}>{totalOriginalPrice.toLocaleString()} تومان</Typography>
+                    <Typography fontWeight={700}>{totalOriginalPrice.toLocaleString()} ریال</Typography>
                 </div>
 
                 <div className="flex justify-between">
                     <Typography color="text.secondary">مجموع تخفیف</Typography>
 
                     <Typography fontWeight={700} color="success.main">
-                        {totalDiscount.toLocaleString()} تومان
+                        {totalDiscount.toLocaleString()} ریال
                     </Typography>
                 </div>
 
@@ -83,7 +83,7 @@ function CartPage() {
                             fontSize: '18px',
                         }}
                     >
-                        {totalPrice.toLocaleString()} تومان
+                        {totalPrice.toLocaleString()} ریال
                     </Typography>
                 </div>
 

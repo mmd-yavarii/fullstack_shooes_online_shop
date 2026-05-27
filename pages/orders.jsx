@@ -3,7 +3,6 @@ import { Stepper, Step, StepLabel, Box, Typography, CircularProgress, Paper, Sta
 import Link from 'next/link';
 
 const orderSteps = ['ثبت شده', 'در حال پردازش', 'ارسال شده'];
-const paymentSteps = ['در انتظار پرداخت', 'پرداخت شده', 'ناموفق'];
 
 // تبدیل اعداد فارسی/عربی به انگلیسی
 const convertToEnglishNumbers = (value) => {
@@ -22,20 +21,6 @@ const getOrderStep = (status) => {
             return 2;
         case 'shipped':
             return 3;
-        default:
-            return 0;
-    }
-};
-
-// payment status
-const getPaymentStep = (status) => {
-    switch (status) {
-        case 'pending':
-            return 0;
-        case 'paid':
-            return 1;
-        case 'failed':
-            return 2;
         default:
             return 0;
     }
@@ -146,11 +131,19 @@ export default function Order() {
                             p: 1,
                             borderRadius: 2,
                             border: '1px solid #ddd',
-                            backgroundColor: order.paymentStatus === 'paid' ? '#e6ffed' : order.paymentStatus === 'failed' ? '#ffe6e6' : '#fff8e1',
+                            backgroundColor:
+                                order.paymentStatus === 'paid'
+                                    ? '#e6ffed'
+                                    : order.paymentStatus === 'failed'
+                                      ? '#ffe6e6'
+                                      : order.paymentStatus === 'unpaid'
+                                        ? '#fff8e1'
+                                        : '#fff8e1',
                         }}
                     >
                         <Typography sx={{ fontWeight: 600 }}>
                             وضعیت پرداخت: {order.paymentStatus === 'paid' && 'پرداخت شده'}
+                            {order.paymentStatus === 'unpaid' && 'پرداخت نشده'}
                             {order.paymentStatus === 'pending' && 'در انتظار پرداخت'}
                             {order.paymentStatus === 'failed' && 'ناموفق'}
                             {order.paymentStatus === 'refunded' && 'بازگشت وجه'}
@@ -165,7 +158,7 @@ export default function Order() {
                         <Typography>کد پستی: {order.user?.postalCode}</Typography>
 
                         <Typography sx={{ fontWeight: 'bold', mt: 1 }}>
-                            مجموع: {order.pricing?.totalFinalPrice?.toLocaleString() || 0} تومان
+                            مجموع: {order.pricing?.totalFinalPrice?.toLocaleString() || 0} ریال
                         </Typography>
                     </Box>
 
@@ -208,7 +201,7 @@ export default function Order() {
                                             </Link>
                                         </Box>
 
-                                        <Typography sx={{ fontWeight: 600 }}>{(item.finalPrice || 0).toLocaleString()} تومان</Typography>
+                                        <Typography sx={{ fontWeight: 600 }}>{(item.finalPrice || 0).toLocaleString()} ریال</Typography>
                                     </Box>
                                 );
                             })}

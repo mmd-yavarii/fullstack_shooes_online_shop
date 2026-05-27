@@ -3,7 +3,17 @@ import { Html, Head, Main, NextScript } from 'next/document';
 export default function Document() {
     return (
         <Html lang="fa" dir="rtl">
-            <Head />
+            <Head>
+                <title>ژییانو | فروشگاه اینترنتی</title>
+
+                <meta name="description" content="خرید آنلاین محصولات با بهترین قیمت، ارسال سریع و ضمانت کیفیت در ژییانو" />
+
+                <meta property="og:title" content="ژییانو | فروشگاه اینترنتی" />
+                <meta property="og:description" content="خرید آنلاین محصولات با بهترین قیمت، ارسال سریع و ضمانت کیفیت" />
+                <meta property="og:image" content="https://your-domain.com/images/og-home.jpg" />
+                <meta property="og:type" content="website" />
+            </Head>
+
             <body className="antialiased">
                 <Main />
                 <NextScript />

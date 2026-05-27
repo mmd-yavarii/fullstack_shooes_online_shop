@@ -68,6 +68,18 @@ const transactionSchema = new mongoose.Schema(
             enum: ['unpaid', 'pending', 'paid', 'failed', 'refunded'],
             default: 'unpaid',
         },
+
+        authority: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
+
+        refId: String,
+
+        cardPan: String,
+
+        paidAt: Date,
     },
     {
         timestamps: true,

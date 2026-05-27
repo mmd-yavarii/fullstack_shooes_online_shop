@@ -60,10 +60,20 @@ export const COLOR_PALETTE = [
     { name: 'کالباسی', hex: '#CD5C5C' },
 ];
 
+export function getColorNameByHex(hex) {
+    if (!hex) return null;
+
+    const normalizedHex = hex.toUpperCase().replace('#', '');
+
+    const color = COLOR_PALETTE.find((item) => item.hex.toUpperCase().replace('#', '') === normalizedHex);
+
+    return color ? color.name : 'نامشخص';
+}
+
 function applyDiscount(price, discountPercent = 0) {
     if (!price || discountPercent <= 0) return price;
 
-    return Math.round(price * (1 - discountPercent / 100));
+    return Math.floor(price * (1 - discountPercent / 100));
 }
 
 export { applyDiscount, COLOR_PALETTE };

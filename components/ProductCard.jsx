@@ -23,11 +23,11 @@ function ProductCard({ data }) {
             <div className="my-1.5 h-10 flex justify-center flex-col sm:my-2">
                 {isDiscoun ? (
                     <>
-                        <p className="line-through text-gray-400 text-[10px] sm:text-xs">{data.price.toLocaleString()} تومان</p>
-                        <p className="text-red-500 font-bold text-xs sm:text-sm">{applyDiscount(data.price, data.discount).toLocaleString()} تومان</p>
+                        <p className="line-through text-gray-400 text-[10px] sm:text-xs">{data.price.toLocaleString()} ریال</p>
+                        <p className="text-red-500 font-bold text-xs sm:text-sm">{applyDiscount(data.price, data.discount).toLocaleString()} ریال</p>
                     </>
                 ) : (
-                    <p className="font-normal text-xs sm:text-sm">{data.price.toLocaleString()} تومان</p>
+                    <p className="font-normal text-xs sm:text-sm">{data.price.toLocaleString()} ریال</p>
                 )}
             </div>
             {/* رنگ‌ها */}

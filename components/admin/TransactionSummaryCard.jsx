@@ -67,7 +67,7 @@ function TransactionSummaryCard({ total = 0, pending = 0, confirmed = 0, cancell
                     </Typography>
 
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        {formatNumber(revenue)} تومان
+                        {formatNumber(revenue)} ریال
                     </Typography>
                 </Box>
             </CardContent>

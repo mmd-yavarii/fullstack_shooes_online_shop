@@ -9,11 +9,11 @@ import { Drawer, List, ListItem, ListItemButton, ListItemText, IconButton, Box, 
 function Layout({ children }) {
     const router = useRouter();
 
-    const hideLayoutRoutes = ['/admin', '/product'];
+    const hideLayoutRoutes = ['/admin', '/product', '/payment'];
 
     const shouldHideLayout = hideLayoutRoutes.some((route) => router.pathname.startsWith(route));
 
-    const hideFooterRoutes = ['/cart', '/about', '/checkout-page', '/orders'];
+    const hideFooterRoutes = ['/cart', '/about', '/checkout-page', '/orders', '/developer-contact'];
 
     const shouldHideFooter = hideFooterRoutes.some((route) => router.pathname.startsWith(route));
 
@@ -27,6 +27,7 @@ function Layout({ children }) {
         { text: 'خانه', href: '/' },
         { text: 'پیگیری سفارش', href: '/orders' },
         { text: 'درباره ما', href: '/about' },
+        { text: 'توسعه دهندگان', href: '/developer-contact' },
     ];
 
     if (shouldHideLayout) {
@@ -53,7 +54,7 @@ function Layout({ children }) {
 
                 <div className="flex flex-col items-center justify-center">
                     <p className="text-[#6d071a] font-bold">Zhiyano</p>
-                    <p className="text-[#6d071a] font-bold">ژیویانو</p>
+                    <p className="text-[#6d071a] font-bold">ژییانو</p>
                 </div>
 
                 <Link href="/cart">
@@ -104,19 +105,19 @@ function Layout({ children }) {
                 <div className="border-t border-[#0000001c] p-4">
                     <div className="flex flex-col items-center justify-center">
                         <p className="text-[#6d071a] font-bold">Zhiyano</p>
-                        <p className="text-[#6d071a] font-bold">ژیویانو</p>
+                        <p className="text-[#6d071a] font-bold">ژییانو</p>
                     </div>
 
                     <div className="flex items-center justify-evenly mt-3">
-                        <Link href="" className="w-15">
+                        {/* <Link href="" className="w-15">
                             پیگیری سفارش
-                        </Link>
+                        </Link> */}
 
                         <img width={70} src="https://cloud.rtl-theme.com/wp-content/uploads/2024/07/1d2ab0.png" alt="" />
 
-                        <Link href="" className="w-15">
+                        {/* <Link href="" className="w-15">
                             درباره ما
-                        </Link>
+                        </Link> */}
                     </div>
                 </div>
             )}

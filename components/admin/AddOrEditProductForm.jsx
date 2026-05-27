@@ -61,7 +61,7 @@ export default function AddProductForm({
             />
 
             {/* PRICE */}
-            <TextField label="قیمت" type="number" fullWidth value={form.price} onChange={(e) => handleChange('price', e.target.value)} />
+            <TextField label="قیمت (ریال)" type="number" fullWidth value={form.price} onChange={(e) => handleChange('price', e.target.value)} />
 
             {/* DISCOUNT */}
             <TextField

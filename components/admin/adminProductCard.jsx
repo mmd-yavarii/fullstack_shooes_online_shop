@@ -116,7 +116,7 @@ function AdminProductCard({ info, onDelete }) {
                                         fontSize: '0.95rem',
                                     }}
                                 >
-                                    {applyDiscount(info.price, info.discount)} تومان
+                                    {applyDiscount(info.price, info.discount).toLocaleString()} ریال
                                 </Typography>
 
                                 {/* ORIGINAL PRICE */}
@@ -127,7 +127,7 @@ function AdminProductCard({ info, onDelete }) {
                                         fontSize: '0.82rem',
                                     }}
                                 >
-                                    {info.price} تومان
+                                    {info.price.toLocaleString()} ریال
                                 </Typography>
                             </>
                         ) : (
@@ -137,7 +137,7 @@ function AdminProductCard({ info, onDelete }) {
                                     fontSize: '0.9rem',
                                 }}
                             >
-                                {info.price} تومان
+                                {info.price} ریال
                             </Typography>
                         )}
                     </Box>
