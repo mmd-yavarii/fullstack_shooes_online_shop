@@ -2,57 +2,120 @@ import { applyDiscount } from '@/helper/help';
 import Link from 'next/link';
 import React from 'react';
 import { FiShoppingCart } from 'react-icons/fi';
+import Image from 'next/image';
 
 function ProductCard({ data }) {
-    const isDiscoun = !!data.discount;
+    const isDiscount = !!data.discount;
     const colors = data.sizes.map((i) => i.color);
 
-    return (
-        <div className="rounded-xl p-2 sm:p-3 w-full sm:w-48 md:w-52  shadow-lg relative" style={{ border: '1px solid #00000017' }}>
-            {isDiscoun && (
-                <div className="bg-red-500 shadow-xl shadow-red-500/30 text-white w-fit rounded-full absolute top-0 right-0 px-2">
-                    OFF {data.discount}%
-                </div>
-            )}
-            {/* تصویر */}
+    const finalPrice = isDiscount ? applyDiscount(data.price, data.discount) : data.price;
 
-            <img src={data.images?.[0]} alt={data.title} className="w-full aspect-square sm:aspect-[4/3] mb-2 rounded-lg object-cover" />
-            {/* عنوان */}
-            <p className="text-xs sm:text-sm font-medium truncate ">
-                {data.brand.name} {data.title}
-            </p>
-            {/* قیمت */}
-            <div className="my-1.5 h-10 flex justify-center flex-col sm:my-2">
-                {isDiscoun ? (
-                    <>
-                        <p className="line-through text-gray-400 text-[10px] sm:text-xs">{data.price.toLocaleString()} ریال</p>
-                        <p className="text-red-500 font-bold text-xs sm:text-sm">{applyDiscount(data.price, data.discount).toLocaleString()} ریال</p>
-                    </>
-                ) : (
-                    <p className="font-normal text-xs sm:text-sm">{data.price.toLocaleString()} ریال</p>
+    const totalStock = data.sizes?.reduce((sum, item) => sum + item.stock, 0) || 0;
+
+    const isOutOfStock = totalStock === 0;
+
+    return (
+        <div
+            className="
+                group relative w-full sm:w-52
+                rounded-3xl overflow-hidden
+                bg-white
+                border border-black/5
+                shadow-sm
+                transition-all duration-300
+                hover:-translate-y-1
+            "
+        >
+            {/* Glow */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-b from-transparent via-transparent to-black/5 pointer-events-none" />
+
+            {/* Image */}
+            <div className="overflow-hidden bg-gray-50 relative">
+                <Image
+                    src={data.images?.[0]}
+                    alt={data.title}
+                    width={500}
+                    height={500}
+                    className={`
+                        w-full aspect-square object-cover
+                        group-hover:scale-[1.06]
+                        transition-transform duration-500 ease-out
+                        ${isOutOfStock ? 'opacity-50 grayscale' : ''}
+                    `}
+                />
+
+                {/* Out of stock badge */}
+                {isOutOfStock && (
+                    <div className="absolute top-3 left-3 z-10">
+                        <span className="bg-black/80 text-white text-[11px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">ناموجود</span>
+                    </div>
+                )}
+
+                {/* Discount badge */}
+                {isDiscount && (
+                    <div className="absolute top-3 right-3 z-10 bg-[#6D071A] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-lg shadow-[#6D071A]/30 border border-white/20 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                        <span>-{data.discount}% OFF</span>
+                    </div>
                 )}
             </div>
-            {/* رنگ‌ها */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                    {colors.slice(0, 3).map((color, index) => (
-                        <div
-                            key={index}
-                            className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border outline-2 outline-white border-[#00000022] -ml-1 sm:-ml-1"
-                            style={{ backgroundColor: color }}
-                        />
-                    ))}
+
+            <div className="p-3 sm:p-4 flex flex-col gap-2">
+                {/* Title */}
+                <p className="text-[13px] sm:text-sm font-medium text-gray-900 line-clamp-2 leading-5">
+                    {data.brand.name} {data.title}
+                </p>
+
+                {/* Price */}
+                <div className="flex flex-col">
+                    {isDiscount ? (
+                        <>
+                            <p className="line-through text-gray-400 text-[11px]">{data.price.toLocaleString()} ریال</p>
+                            <p className="text-[#6D071A] font-semibold text-sm">{finalPrice.toLocaleString()} ریال</p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="line-through text-gray-400 text-[11px] opacity-0">..</p>
+                            <p className="text-gray-900 font-semibold text-sm">{data.price.toLocaleString()} ریال</p>
+                        </>
+                    )}
                 </div>
-                {colors.length > 3 && <span className="text-[10px] sm:text-xs text-gray-500">+{colors.length - 3} رنگ</span>}
-            </div>
-            {/* دکمه */}
-            <div className="group">
+
+                {/* Colors */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        {colors.slice(0, 3).map((color, index) => (
+                            <div
+                                key={index}
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-white shadow-sm -ml-1 first:ml-0"
+                                style={{ backgroundColor: color }}
+                            />
+                        ))}
+                    </div>
+
+                    {colors.length > 3 && <span className="text-[10px] text-gray-500">+{colors.length - 3}</span>}
+                </div>
+
+                {/* Button */}
                 <Link
                     href={`/product/${data._id}`}
-                    className="bg-[#6d071a43] text-[#6d071a] mt-2 p-1.5 sm:p-2 rounded-lg w-full flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm cursor-pointer hover:bg-[#6D071A] hover:text-white hover:shadow-lg hover:shadow-[#6D071A]/40 transition-all duration-300 active:scale-95"
+                    className="
+                        mt-2 flex items-center justify-center gap-2
+                        rounded-2xl py-2.5
+                        text-xs sm:text-sm font-medium
+                        transition-all duration-200
+                        shadow-md
+                        active:scale-[0.98]
+                        hover:shadow-lg
+                    "
+                    style={{
+                        backgroundColor: '#6D071A',
+                        color: 'white',
+                    }}
                 >
-                    <span className="group-hover:inline transition-all">خرید محصول</span>
-                    <FiShoppingCart className="w-4 h-4" />
+                    <span>{isOutOfStock ? 'مشاهده محصول (ناموجود)' : 'افزودن به سبد'}</span>
+
+                    {!isOutOfStock && <FiShoppingCart className="w-4 h-4" />}
                 </Link>
             </div>
         </div>

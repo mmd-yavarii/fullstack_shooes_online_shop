@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Box, Card, IconButton, Dialog } from '@mui/material';
+import { Box, Card, IconButton, Dialog, CircularProgress } from '@mui/material';
 
 import { ChevronLeft, ChevronRight, Close } from '@mui/icons-material';
 
@@ -11,6 +11,8 @@ function ProductMedia({ images = [] }) {
     const [direction, setDirection] = useState(1);
     const [open, setOpen] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(true);
+
     if (!images.length) return null;
 
     const change = (newIndex, dir) => {
@@ -20,18 +22,30 @@ function ProductMedia({ images = [] }) {
 
     const prev = () => {
         const newIndex = index === 0 ? images.length - 1 : index - 1;
-
         change(newIndex, -1);
     };
 
     const next = () => {
         const newIndex = index === images.length - 1 ? 0 : index + 1;
-
         change(newIndex, 1);
     };
 
     return (
         <>
+            {/* KEYFRAMES (inline so nothing else changes) */}
+            <style>{`
+                @keyframes shimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
+                }
+
+                @keyframes pulse {
+                    0% { transform: scale(0.85); opacity: 0.4; }
+                    50% { transform: scale(1); opacity: 0.8; }
+                    100% { transform: scale(0.85); opacity: 0.4; }
+                }
+            `}</style>
+
             <Box
                 sx={{
                     display: 'flex',
@@ -61,11 +75,44 @@ function ProductMedia({ images = [] }) {
                             },
                         }}
                     >
+                        {/* LOADING OVERLAY (UPGRADED) */}
+                        {isLoading && (
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    zIndex: 2,
+                                    overflow: 'hidden',
+                                    background: 'linear-gradient(110deg, #f2f2f2 8%, #e8e8e8 18%, #f2f2f2 33%)',
+                                    backgroundSize: '200% 100%',
+                                    animation: 'shimmer 1.2s infinite linear',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        width: 60,
+                                        height: 60,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'rgba(0,0,0,0.04)',
+                                    }}
+                                >
+                                    <CircularProgress size={28} thickness={4} />
+                                </Box>
+                            </Box>
+                        )}
+
                         <AnimatePresence mode="wait">
                             <motion.img
                                 key={images[index]}
                                 src={images[index]}
                                 onClick={() => setOpen(true)}
+                                onLoad={() => setIsLoading(false)}
                                 initial={{
                                     x: direction > 0 ? 120 : -120,
                                     opacity: 0,

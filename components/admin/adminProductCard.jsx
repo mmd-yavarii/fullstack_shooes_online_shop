@@ -11,6 +11,9 @@ function AdminProductCard({ info, onDelete }) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
 
+    const totalStock = info.sizes?.reduce((sum, item) => sum + item.stock, 0) || 0;
+    const isOutOfStock = totalStock === 0;
+
     const handleEdit = () => {
         router.push(`/admin/products/edit/${info._id}`);
     };
@@ -53,8 +56,35 @@ function AdminProductCard({ info, onDelete }) {
                             height: '100%',
                             objectFit: 'cover',
                             borderRadius: 2,
+                            opacity: isOutOfStock ? 0.5 : 1,
+                            filter: isOutOfStock ? 'grayscale(1)' : 'none',
                         }}
                     />
+                    {isOutOfStock && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+
+                                bgcolor: '#1111119d',
+                                color: '#fff',
+
+                                px: 2,
+                                py: 0.8,
+
+                                borderRadius: 999,
+
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+
+                                boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
+                            }}
+                        >
+                            ناموجود
+                        </Box>
+                    )}
 
                     {/* OFF BADGE */}
                     {info.discount > 0 && (

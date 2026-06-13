@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Box, Typography, Chip, Button, Stack } from '@mui/material';
+import { Box, Typography, Chip, Stack } from '@mui/material';
 
 import Link from 'next/link';
 import { getColorNameByHex } from '@/helper/help';
@@ -89,40 +89,12 @@ function TransactionCard({ data }) {
         }
     };
 
-    // PAYMENT UPDATE API
-    // const updatePaymentStatus = async (newStatus) => {
-    //     try {
-    //         setLoading(true);
-
-    //         const res = await fetch('/api/transaction/update-payment-status', {
-    //             method: 'PATCH',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({
-    //                 id: data._id,
-    //                 paymentStatus: newStatus,
-    //             }),
-    //         });
-
-    //         const result = await res.json();
-
-    //         if (!res.ok) throw new Error(result.message || 'خطا');
-
-    //         setPaymentStatusState(newStatus);
-    //     } catch (error) {
-    //         console.log(error);
-    //         alert(error.message);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     const style = getStyle(status);
     const isFinal = status !== 'pending';
 
     return (
         <>
             {/* pdf data */}
-            {/* <TransactionPrint printRef={printRef} data={data} /> */}
             <TransactionPrint open={open} onClose={() => setOpen(false)} data={data} />
 
             {/* component style */}
@@ -140,6 +112,28 @@ function TransactionCard({ data }) {
                     },
                 }}
             >
+                <div className="my-2">
+                    <Chip
+                        label={getStatus(status)}
+                        sx={{
+                            backgroundColor: style.bg,
+                            color: style.color,
+                            fontWeight: 700,
+                            mr: 1,
+                            ml: 1,
+                        }}
+                    />
+
+                    <Chip
+                        label={getPaymentStatus(paymentStatusState)}
+                        sx={{
+                            backgroundColor: getPaymentStyle(paymentStatusState).bg,
+                            color: getPaymentStyle(paymentStatusState).color,
+                            fontWeight: 700,
+                        }}
+                    />
+                </div>
+
                 <div className="mb-5 flex items-center justify-between">
                     <p className="font-bold text-[20px]">{data.user.fullName}</p>
                     <button onClick={() => setOpen(true)} className="px-4 py-2 cursor-pointer rounded-lg bg-blue-600 text-white">
@@ -240,52 +234,32 @@ function TransactionCard({ data }) {
 
                 {/* ACTIONS */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, alignItems: 'center' }}>
-                    <Box>
-                        <Chip
-                            label={getStatus(status)}
-                            sx={{
-                                backgroundColor: style.bg,
-                                color: style.color,
-                                fontWeight: 700,
-                                mr: 1,
-                                ml: 1,
-                            }}
-                        />
-
-                        <Chip
-                            label={getPaymentStatus(paymentStatusState)}
-                            sx={{
-                                backgroundColor: getPaymentStyle(paymentStatusState).bg,
-                                color: getPaymentStyle(paymentStatusState).color,
-                                fontWeight: 700,
-                            }}
-                        />
-                    </Box>
-
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         {/* ORDER STATUS */}
                         {!isFinal && (
                             <>
-                                <Button variant="contained" color="success" disabled={loading} onClick={() => updateStatus('confirmed')}>
+                                <button
+                                    className="btn btn-success bg-teal-100 text-teal-500 font-medium p-1 rounded-sm cursor-pointer"
+                                    disabled={loading}
+                                    onClick={() => updateStatus('confirmed')}
+                                >
                                     سفارش ارسال شد
-                                </Button>
+                                </button>
 
-                                <Button
-                                    variant="outlined"
-                                    color="error"
+                                <button
+                                    className="btn bg-red-100 text-red-500 font-medium p-1 rounded-sm cursor-pointer"
                                     disabled={loading}
                                     onClick={() => updateStatus('cancelled')}
-                                    sx={{ color: 'red' }}
                                 >
                                     لغو سفارش
-                                </Button>
+                                </button>
                             </>
                         )}
 
                         {/* PAYMENT STATUS BUTTONS */}
                         {paymentStatusState === 'paid' && (
-                            <Button
-                                variant="contained"
+                            <button
+                                className={'bg-blue-100 text-blue-500 font-medium p-1 rounded-sm cursor-pointer'}
                                 disabled={loading}
                                 onClick={async () => {
                                     try {
@@ -313,21 +287,9 @@ function TransactionCard({ data }) {
                                         setLoading(false);
                                     }
                                 }}
-                                sx={{
-                                    backgroundColor: '#dc2626',
-                                    fontWeight: 600,
-                                    px: 2,
-                                    borderRadius: 2,
-                                    textTransform: 'none',
-                                    boxShadow: 'none',
-                                    '&:hover': {
-                                        backgroundColor: '#b91c1c',
-                                        boxShadow: '0 4px 12px rgba(220,38,38,0.3)',
-                                    },
-                                }}
                             >
                                 بازگشت وجه انجام شد
-                            </Button>
+                            </button>
                         )}
                     </Box>
                 </Box>

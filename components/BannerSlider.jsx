@@ -9,7 +9,6 @@ function BannerSlider() {
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    // 1. fetch from server
     useEffect(() => {
         const fetchBanners = async () => {
             try {
@@ -30,7 +29,6 @@ function BannerSlider() {
         fetchBanners();
     }, []);
 
-    // 2. slider logic (only when data exists)
     useEffect(() => {
         if (!banners.length) return;
 
@@ -75,8 +73,14 @@ function BannerSlider() {
                 <div className="absolute inset-0 bg-black/40 z-[1]" />
 
                 {/* progress bar */}
-                <div className="absolute top-0 left-0 w-full h-[4px] bg-white/20 z-[1]">
-                    <div className="h-full bg-[#6d071a]" style={{ width: `${progress}%` }} />
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[92%] h-[6px] z-[3]">
+                    <div className="w-full h-full rounded-full bg-white/10 backdrop-blur-md overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#6d071a]/20 to-[#a10b2a]/20 animate-pulse" />
+                        <div
+                            className="h-full rounded-full bg-gradient-to-r from-[#6d071a] to-[#a10b2a] shadow-[0_0_12px_rgba(109,7,26,0.6)] transition-all duration-500 ease-out"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
                 </div>
 
                 {/* image */}

@@ -10,7 +10,6 @@ export default function CartList({ cart, removeFromCart }) {
         router.push(`/product/${id}`);
     };
 
-    // قیمت نهایی هر آیتم بعد تخفیف
     const getDiscountedPrice = (item) => {
         const discount = item.discount || 0;
         return item.price - (item.price * discount) / 100;

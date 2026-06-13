@@ -30,7 +30,7 @@ function TransactionPrint({ open, onClose, data }) {
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+        <Dialog open={open} onClose={onClose} fullScreen>
             <DialogContent>
                 <div
                     ref={printRef}

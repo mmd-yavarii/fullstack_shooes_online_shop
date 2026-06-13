@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
+/* @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.3/Vazirmatn-font-face.css'); */
+
 body {
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: sans-serif;
 }
 
 .no-scrollbar::-webkit-scrollbar {

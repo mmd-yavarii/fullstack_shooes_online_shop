@@ -2,21 +2,21 @@ import React, { useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
 import { Pagination, Stack } from '@mui/material';
 import { allOptions, CATEGORY_GROUP } from '@/helper/categories';
+import { FiSearch } from 'react-icons/fi';
+import { SearchX } from 'lucide-react';
+import Image from 'next/image';
 
 // cache labels
 const categoryMap = Object.fromEntries(allOptions.map((i) => [i.value, i.label]));
 
 function AllProductsList({ products = [] }) {
-    const [filterValue, setFilterValue] = useState('all'); // category
-    const [groupFilter, setGroupFilter] = useState('all'); // group
+    const [filterValue, setFilterValue] = useState('all');
+    const [groupFilter, setGroupFilter] = useState('all');
     const [searchValue, setSearchValue] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
     const itemsPerPage = 8;
 
-    // ---------------------------
-    // FILTERED PRODUCTS (group + category + search)
-    // ---------------------------
     const filteredProducts = useMemo(() => {
         return products
             .filter((item) => {
@@ -34,9 +34,6 @@ function AllProductsList({ products = [] }) {
             });
     }, [products, filterValue, groupFilter, searchValue]);
 
-    // ---------------------------
-    // CATEGORY LIST (DEPENDENT ON GROUP)
-    // ---------------------------
     const categories = useMemo(() => {
         const base = products.filter((item) => {
             if (groupFilter !== 'all' && item.group !== groupFilter) return false;
@@ -52,9 +49,6 @@ function AllProductsList({ products = [] }) {
 
     const currentItems = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    // ---------------------------
-    // HANDLERS
-    // ---------------------------
     function handleCategory(value) {
         setFilterValue(value);
         setCurrentPage(1);
@@ -62,7 +56,7 @@ function AllProductsList({ products = [] }) {
 
     function handleGroupFilter(value) {
         setGroupFilter(value);
-        setFilterValue('all'); // مهم: جلوگیری از mismatch
+        setFilterValue('all');
         setCurrentPage(1);
     }
 
@@ -76,23 +70,35 @@ function AllProductsList({ products = [] }) {
             <span className="mb-4 inline-block font-semibold">همه محصولات</span>
 
             {/* SEARCH */}
-            <div className="mb-6">
+
+            <div className="relative w-full mb-6">
+                <FiSearch
+                    className="
+            absolute right-3 top-1/2 -translate-y-1/2
+            text-gray-400 w-4 h-4
+            pointer-events-none
+        "
+                />
+
                 <input
                     type="text"
                     placeholder="جستجوی محصول..."
                     value={searchValue}
                     onChange={(e) => handleSearch(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        borderRadius: '10px',
-                        border: '1px solid #eaedf3',
-                        backgroundColor: '#f5f7fb',
-                        fontSize: '14px',
-                        outline: 'none',
-                        direction: 'rtl',
-                        textAlign: 'right',
-                    }}
+                    className="
+                        w-full
+                        pr-9 pl-4 py-2.5
+                        rounded-xl
+                        bg-white
+                        border border-gray-200
+                        text-sm text-right
+                        placeholder:text-gray-400
+                        outline-none
+                        transition-all duration-200
+                        hover:border-gray-300
+                        focus:border-[#6D071A]
+                    "
+                    dir="rtl"
                 />
             </div>
 
@@ -106,7 +112,7 @@ function AllProductsList({ products = [] }) {
                         }`}
                     />
 
-                    <img src="/category_groups/allgoods.png" alt="all" className="w-16 h-16 object-contain relative z-10" />
+                    <img src="/category_groups/allgoods.png" alt="all" className="w-13 h-13 object-contain relative z-10" />
 
                     <span className={`text-xs relative z-10 ${groupFilter === 'all' ? 'text-[#6d071a]' : ''}`}>همه گروه‌ها</span>
 
@@ -125,7 +131,7 @@ function AllProductsList({ products = [] }) {
                                 groupFilter === group.value ? 'bg-[radial-gradient(circle,rgba(109,7,26,0.6)_0%,transparent_70%)]' : 'bg-transparent'
                             }`}
                         />
-                        <img src={group.image} alt={group.label} className="w-16 h-16 object-contain relative z-10" />
+                        <Image src={group.image} alt={group.label} width={52} height={52} className="object-contain" />{' '}
                         <span className={`text-xs relative z-10 ${groupFilter === group.value ? 'text-[#6d071a]' : ''}`}>{group.label}</span>
                         <div
                             className={`h-[2px] w-8 mt-1 rounded-full transition ${groupFilter === group.value ? 'bg-[#6d071a]' : 'bg-transparent'}`}
@@ -157,7 +163,15 @@ function AllProductsList({ products = [] }) {
                     ))}
                 </div>
             ) : (
-                <p className="my-10 text-center text-gray-500">محصولی یافت نشد :(</p>
+                <div className="my-16 flex flex-col items-center justify-center text-center">
+                    <SearchX className="mb-4 h-14 w-14 text-[#800020]" />
+
+                    <h3 className="text-xl font-semibold text-gray-800">محصولی یافت نشد</h3>
+
+                    <p className="mt-2 max-w-sm text-sm text-gray-500">
+                        نتیجه‌ای برای جستجوی شما پیدا نشد. فیلترها را بررسی کنید یا عبارت دیگری را امتحان کنید.
+                    </p>
+                </div>
             )}
 
             {/* PAGINATION */}

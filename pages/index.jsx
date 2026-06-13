@@ -1,9 +1,35 @@
+import { useEffect, useState } from 'react';
 import AllProductsList from '@/components/AllProductsList';
 import BannerSlider from '@/components/BannerSlider';
 import ProductCard from '@/components/ProductCard';
 import { Box } from '@mui/material';
+import LoadingScreen from '@/components/loadings/LoadingScreen';
 
-export default function Home({ products }) {
+export default function Home() {
+    const [products, setProducts] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('/api/product');
+                const data = await res.json();
+                setProducts(data);
+            } catch (err) {
+                console.log(err);
+                setProducts(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <LoadingScreen />;
+    }
+
     if (!products) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -18,7 +44,7 @@ export default function Home({ products }) {
             {products.products?.filter((item) => item.discount)?.length > 0 && (
                 <>
                     <span className="mb-4 inline-block">محصولات با تخفیف</span>
-                    <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                    <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4">
                         {products.products
                             .filter((item) => item.discount)
                             .map((item) => (
@@ -30,41 +56,11 @@ export default function Home({ products }) {
                 </>
             )}
 
-            {/* banner */}
             <div className="mb-5">
                 <BannerSlider />
             </div>
 
-            {/* all products */}
             <AllProductsList products={products.products || []} />
-
-            {/* about */}
-            <span className="mb-4 inline-block mt-3">درباره ما</span>
-            <p className="text-center">
-                فروشگاه ژیویانو با تمرکز بر ارائه محصولات باکیفیت و تجربه خرید مطمئن، همواره تلاش می‌کند بهترین خدمات را به مشتریان خود ارائه دهد.
-            </p>
         </div>
     );
-}
-
-// 🔥 ISR PART
-export async function getStaticProps() {
-    try {
-        const res = await fetch('http://localhost:3000/api/product');
-        const data = await res.json();
-
-        return {
-            props: {
-                products: data,
-            },
-            revalidate: 60, // ⬅️ ISR: هر 60 ثانیه آپدیت
-        };
-    } catch (error) {
-        return {
-            props: {
-                products: null,
-            },
-            revalidate: 60,
-        };
-    }
 }

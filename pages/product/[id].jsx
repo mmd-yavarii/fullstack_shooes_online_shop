@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import ProductInfo from '@/components/productPage/ProductInfo';
 import ProductMedia from '@/components/productPage/ProductMedia';
 import ProductActions from '@/components/productPage/ProductActions';
+import ProductPageSkeleton from '@/components/loadings/ProductPageSkeleton';
 
 function ProductPage() {
     const router = useRouter();
@@ -148,17 +149,13 @@ function ProductPage() {
     };
 
     if (loading) {
-        return (
-            <div className="flex justify-center py-20">
-                <CircularProgress />
-            </div>
-        );
+        return <ProductPageSkeleton />;
     }
 
     if (!product) return <div>Product not found</div>;
 
     return (
-        <div className="max-w-[1100px] mx-auto p-4 pb-24 flex flex-col lg:flex-row gap-8">
+        <div className="max-w-[1100px] mx-auto p-4 pb-24 flex flex-col lg:flex-row gap-8 mt-4">
             {/* ALERT */}
             <Snackbar
                 open={alert.open}

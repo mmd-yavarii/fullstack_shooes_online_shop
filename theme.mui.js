@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import 'vazirmatn/Vazirmatn-font-face.css';
+// import 'vazirmatn/Vazirmatn-font-face.css';
 
 // colors
 const colors = {
@@ -19,8 +19,11 @@ const shape = {
 };
 
 const theme = createTheme({
+    // typography: {
+    //     fontFamily: 'Vazirmatn, Roboto, Arial, sans-serif',
+    // },
     typography: {
-        fontFamily: 'Vazirmatn, Roboto, Arial, sans-serif',
+        fontFamily: 'Arial, sans-serif',
     },
 
     palette: {
