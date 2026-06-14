@@ -1,15 +1,8 @@
-import connectDB from '@/lib/db';
-import Product from '@/models/Product';
-
 import { useEffect, useState } from 'react';
 import AllProductsList from '@/components/AllProductsList';
-import BannerSlider from '@/components/BannerSlider';
-import ProductCard from '@/components/ProductCard';
 import { Pagination, Stack } from '@mui/material';
-import Link from 'next/link';
-import { FaLink } from 'react-icons/fa';
 
-export default function Home({ discounted }) {
+export default function DiscountPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -24,7 +17,9 @@ export default function Home({ discounted }) {
             setLoading(true);
 
             try {
-                const res = await fetch(`/api/product?page=${page}&categoryGroup=${categoryGroup}&subCategory=${subCategory}&search=${search}`);
+                const res = await fetch(
+                    `/api/product?discounts=true&page=${page}&categoryGroup=${categoryGroup}&subCategory=${subCategory}&search=${search}`
+                );
                 const data = await res.json();
 
                 setProducts(data);
@@ -44,39 +39,7 @@ export default function Home({ discounted }) {
 
     return (
         <div style={{ padding: 20, maxWidth: '900px', margin: '0 auto' }}>
-            {/* discounted */}
-            {discounted.length > 0 && (
-                <>
-                    <p className="mb-4 flex gap-3">
-                        <span>محصولات با تخفیف</span>
-
-                        {/* {discountedLength} */}
-
-                        <Link
-                            href="/discounts"
-                            className=" inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition-colors duration-200"
-                        >
-                            مشاهده همه تخفیف‌ها
-                            <FaLink />
-                        </Link>
-                    </p>
-
-                    <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4">
-                        {discounted.map((item) => (
-                            <div key={item._id} className="flex-shrink-0 w-44 sm:w-48 md:w-52 lg:w-56">
-                                <ProductCard data={item} />
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
-
-            {/* all products */}
-            <span className="mb-4 inline-block font-semibold">همه محصولات</span>
-
-            <div className="mb-5">
-                <BannerSlider />
-            </div>
+            <span className="mb-4 inline-block font-semibold">همه محصولات تخفیف دار</span>
 
             <AllProductsList
                 products={products.products || []}
@@ -110,18 +73,3 @@ export default function Home({ discounted }) {
         </div>
     );
 }
-
-export async function getStaticProps() {
-    await connectDB();
-
-    const discounted = await Product.find({ discount: { $gt: 0 } }).limit(7);
-
-    return {
-        props: {
-            discounted: JSON.parse(JSON.stringify(discounted)),
-        },
-        revalidate: 3600,
-    };
-}
-
-// const res = await fetch(`/api/product?discounts=true`);

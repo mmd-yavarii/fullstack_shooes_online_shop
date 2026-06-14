@@ -20,7 +20,6 @@ function About() {
         >
             <Container maxWidth="lg">
                 <Stack spacing={5}>
-                    {/* HERO */}
                     <Paper
                         elevation={0}
                         sx={{
@@ -84,7 +83,6 @@ function About() {
                         </Stack>
                     </Paper>
 
-                    {/* CONTACT */}
                     <Paper
                         elevation={0}
                         sx={{
@@ -101,23 +99,15 @@ function About() {
                                     icon={<PhoneRoundedIcon />}
                                     title="تلفن تماس"
                                     actionHint="برای تماس مستقیم کلیک کنید"
-                                    value="0912-123-4567"
-                                    href="tel:09121234567"
-                                />
-
-                                <ContactItem
-                                    icon={<EmailRoundedIcon />}
-                                    title="ایمیل"
-                                    actionHint="برای ارسال ایمیل کلیک کنید"
-                                    value="support@zhiyano.com"
-                                    href="mailto:support@zhiyano.com"
+                                    value="09211091625"
+                                    href="tel:09211091625"
                                 />
 
                                 <ContactItem
                                     icon={<LocationOnRoundedIcon />}
                                     title="آدرس"
-                                    value="ایران، تهران"
-                                    href="https://www.google.com/maps/search/?api=1&query=Kermanshah,Iran"
+                                    value="کرمانشاه،الهیه خیابان بهداری،بعد از چهارراه امیر کبیر کتونی ژیانو"
+                                    href="https://maps.app.goo.gl/WgaYiqXqwMkoGBkj8?g_st=atm"
                                     actionHint="برای مسیر‌یابی کلیک کنید"
                                 />
                             </Stack>

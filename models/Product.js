@@ -75,4 +75,8 @@ const ProductSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+ProductSchema.index({ group: 1, category: 1 });
+ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ category: 1 });
+
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

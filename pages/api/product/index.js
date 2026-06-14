@@ -11,11 +11,44 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const products = await Product.find();
+        const page = parseInt(req.query.page || '1', 10);
+        const perpage = 8;
+
+        const category = req.query.categoryGroup || 'all';
+        const subCategory = req.query.subCategory || 'all';
+        const onlyDiscounts = req.query.discounts === 'true';
+
+        const search = req.query.search?.trim();
+
+        const filter = {};
+
+        if (search) {
+            filter.title = { $regex: search, $options: 'i' };
+        }
+
+        if (onlyDiscounts) {
+            filter.discount = { $gt: 0 };
+        }
+
+        if (category !== 'all') {
+            filter.group = category;
+        }
+
+        if (subCategory !== 'all') {
+            filter.category = subCategory;
+        }
+
+        const products = await Product.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(perpage)
+            .skip((page - 1) * perpage);
+
+        const productsLength = await Product.countDocuments(filter);
 
         return res.status(200).json({
             message: 'Products fetched successfully',
             products,
+            productsLength,
         });
     } catch (error) {
         console.error(error);

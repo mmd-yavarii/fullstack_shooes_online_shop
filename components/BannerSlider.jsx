@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import BanderLoading from './loadings/BanderLoading';
 
 const DURATION = 9000;
 
@@ -57,7 +58,7 @@ function BannerSlider() {
     }, [banners]);
 
     if (loading) {
-        return <div className="w-full flex justify-center py-10 text-gray-500">در حال بارگذاری بنرها...</div>;
+        return <BanderLoading />;
     }
 
     if (!banners.length) {

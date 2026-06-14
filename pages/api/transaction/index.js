@@ -12,6 +12,12 @@ export default async function handler(req, res) {
             })
             .sort({ createdAt: -1 });
 
+        // const transactions = await Transaction.find({}).limit(20).sort({ createdAt: -1 }).select('items user createdAt');
+        //         .populate({
+        //   path: 'items.product',
+        //   select: 'title images price',
+        // })
+
         return res.status(200).json({
             success: true,
             count: transactions.length,

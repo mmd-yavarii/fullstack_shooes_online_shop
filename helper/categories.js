@@ -7,60 +7,60 @@ const CATEGORY_GROUP = [
 ];
 
 const shoesOptions = [
-    { value: 'casual', label: 'روزمره' },
-    { value: 'sport', label: 'ورزشی' },
-    { value: 'boots', label: 'بوت' },
-    { value: 'formal', label: 'رسمی' },
-    { value: 'basketball', label: 'بسکتبال' },
+    { value: 'casual', label: 'روزمره', group: 'shoes' },
+    { value: 'sport', label: 'ورزشی', group: 'shoes' },
+    { value: 'boots', label: 'بوت', group: 'shoes' },
+    { value: 'formal', label: 'رسمی', group: 'shoes' },
+    { value: 'basketball', label: 'بسکتبال', group: 'shoes' },
 ];
 
 const hatOptions = [
-    { value: 'beanie', label: 'لبه‌دار' },
-    { value: 'winter', label: 'زمستانی' },
-    { value: 'cowboy', label: 'کابویی' },
+    { value: 'beanie', label: 'لبه‌دار', group: 'accessory' },
+    { value: 'winter', label: 'زمستانی', group: 'accessory' },
+    { value: 'cowboy', label: 'کابویی', group: 'accessory' },
 ];
 
 const clothesOptions = [
-    { value: 'tshirt', label: 'تی‌شرت ' },
-    { value: 'shirt', label: 'پیراهن ' },
-    { value: 'hoodie', label: 'هودی ' },
-    { value: 'pants', label: 'شلوار ' },
-    { value: 'polo', label: 'پولوشرت ' },
-    { value: 'jacket', label: 'ژاکت ' },
-    { value: 'tanktop', label: 'تنک تاپ ' },
-    { value: 'tanktop', label: 'نیم‌تنه' },
-    { value: 'shorts', label: 'شلوارک ' },
-    { value: 'undershirt', label: 'زیرپوش' },
-    { value: 'underwear', label: 'لباس زیر' },
-    { value: 'scarf', label: 'شال و روسری' },
+    { value: 'tshirt', label: 'تی‌شرت', group: 'clothes' },
+    { value: 'shirt', label: 'پیراهن', group: 'clothes' },
+    { value: 'hoodie', label: 'هودی', group: 'clothes' },
+    { value: 'pants', label: 'شلوار', group: 'clothes' },
+    { value: 'polo', label: 'پولوشرت', group: 'clothes' },
+    { value: 'jacket', label: 'ژاکت', group: 'clothes' },
+    { value: 'tanktop', label: 'تنک تاپ', group: 'clothes' },
+    { value: 'crop_top', label: 'نیم‌تنه', group: 'clothes' },
+    { value: 'shorts', label: 'شلوارک', group: 'clothes' },
+    { value: 'undershirt', label: 'زیرپوش', group: 'clothes' },
+    { value: 'underwear', label: 'لباس زیر', group: 'clothes' },
+    { value: 'scarf', label: 'شال و روسری', group: 'clothes' },
 ];
 
 const accessoryOptions = [
-    { value: 'necklace', label: 'گردنبند' },
-    { value: 'necklace_choker', label: 'چوکر' },
-    { value: 'ring', label: 'انگشتر' },
-    { value: 'watch', label: 'ساعت ' },
-    { value: 'bracelet', label: 'دستبند' },
-    { value: 'glasses_sun', label: 'عینک آفتابی' },
-    { value: 'glasses', label: 'عینک' },
-    { value: 'belt', label: 'کمربند' },
-    { value: 'earring', label: 'گوشواره' },
-    { value: 'anklet', label: 'پابند' },
-    { value: 'brooch', label: 'سنجاق سینه' },
-    { value: 'cufflinks', label: 'دکمه سردست' },
-    { value: 'tie_clip', label: 'کلیپس کراوات' },
-    { value: 'hair_clip', label: 'کلیپس مو' },
-    { value: 'hair_band', label: 'کش مو' },
-    { value: 'hair_pin', label: 'سنجاق مو' },
+    { value: 'necklace', label: 'گردنبند', group: 'accessory' },
+    { value: 'necklace_choker', label: 'چوکر', group: 'accessory' },
+    { value: 'ring', label: 'انگشتر', group: 'accessory' },
+    { value: 'watch', label: 'ساعت', group: 'accessory' },
+    { value: 'bracelet', label: 'دستبند', group: 'accessory' },
+    { value: 'glasses_sun', label: 'عینک آفتابی', group: 'accessory' },
+    { value: 'glasses', label: 'عینک', group: 'accessory' },
+    { value: 'belt', label: 'کمربند', group: 'accessory' },
+    { value: 'earring', label: 'گوشواره', group: 'accessory' },
+    { value: 'anklet', label: 'پابند', group: 'accessory' },
+    { value: 'brooch', label: 'سنجاق سینه', group: 'accessory' },
+    { value: 'cufflinks', label: 'دکمه سردست', group: 'accessory' },
+    { value: 'tie_clip', label: 'کلیپس کراوات', group: 'accessory' },
+    { value: 'hair_clip', label: 'کلیپس مو', group: 'accessory' },
+    { value: 'hair_band', label: 'کش مو', group: 'accessory' },
+    { value: 'hair_pin', label: 'سنجاق مو', group: 'accessory' },
 ];
 
-const giftOptions = [{ value: 'gift_box', label: 'باکس هدیه' }];
+const giftOptions = [{ value: 'gift_box', label: 'باکس هدیه', group: 'box' }];
 
 const bagOptions = [
-    { value: 'bag_handbag', label: 'کیف دستی' },
-    { value: 'bag_backpack', label: 'کوله‌پشتی' },
-    { value: 'bag_wallet', label: 'کیف پول' },
-    { value: 'bag_crossbody', label: 'کیف کراس‌بادی' },
+    { value: 'bag_handbag', label: 'کیف دستی', group: 'bag' },
+    { value: 'bag_backpack', label: 'کوله‌پشتی', group: 'bag' },
+    { value: 'bag_wallet', label: 'کیف پول', group: 'bag' },
+    { value: 'bag_crossbody', label: 'کیف کراس‌بادی', group: 'bag' },
 ];
 
 const allOptions = [...shoesOptions, ...bagOptions, ...giftOptions, ...accessoryOptions, ...clothesOptions, ...hatOptions];
