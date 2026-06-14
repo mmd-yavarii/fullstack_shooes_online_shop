@@ -50,24 +50,32 @@ export default function Home({ discounted }) {
                     <p className="mb-4 flex gap-3">
                         <span>محصولات با تخفیف</span>
 
-                        {/* {discountedLength} */}
-
                         <Link
                             href="/discounts"
-                            className=" inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition-colors duration-200"
+                            className="inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition-colors duration-200"
                         >
                             مشاهده همه تخفیف‌ها
                             <FaLink />
                         </Link>
                     </p>
 
-                    <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4">
+                    <div className="hide-scrollbar flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4">
                         {discounted.map((item) => (
                             <div key={item._id} className="flex-shrink-0 w-44 sm:w-48 md:w-52 lg:w-56">
                                 <ProductCard data={item} />
                             </div>
                         ))}
                     </div>
+
+                    <style jsx>{`
+                        .hide-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .hide-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                    `}</style>
                 </>
             )}
 
