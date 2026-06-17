@@ -34,7 +34,12 @@ const ProductSchema = new mongoose.Schema(
             unique: true,
         },
 
-        images: [String],
+        images: [
+            {
+                url: String,
+                publicId: String,
+            },
+        ],
 
         brand: {
             id: String,

@@ -49,7 +49,7 @@ function AdminProductCard({ info, onDelete }) {
                 >
                     <Box
                         component="img"
-                        src={info.images?.[0] || '/placeholder.png'}
+                        src={info.images?.[0]?.url || '/placeholder.png'}
                         alt={info.title}
                         sx={{
                             width: '100%',

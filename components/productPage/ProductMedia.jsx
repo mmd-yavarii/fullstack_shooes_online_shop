@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
-
 import { Box, Card, IconButton, Dialog, CircularProgress } from '@mui/material';
-
 import { ChevronLeft, ChevronRight, Close } from '@mui/icons-material';
-
 import { AnimatePresence, motion } from 'framer-motion';
 
 function ProductMedia({ images = [] }) {
     const [index, setIndex] = useState(0);
     const [direction, setDirection] = useState(1);
     const [open, setOpen] = useState(false);
-
     const [isLoading, setIsLoading] = useState(true);
 
     if (!images.length) return null;
 
+    const getImg = (img) => {
+        if (!img) return '';
+        return typeof img === 'string' ? img : img.url;
+    };
+
     const change = (newIndex, dir) => {
         setDirection(dir);
         setIndex(newIndex);
+        setIsLoading(true);
     };
 
     const prev = () => {
@@ -32,28 +34,16 @@ function ProductMedia({ images = [] }) {
 
     return (
         <>
-            {/* KEYFRAMES (inline so nothing else changes) */}
+            {/* KEYFRAMES */}
             <style>{`
                 @keyframes shimmer {
                     0% { background-position: -200% 0; }
                     100% { background-position: 200% 0; }
                 }
-
-                @keyframes pulse {
-                    0% { transform: scale(0.85); opacity: 0.4; }
-                    50% { transform: scale(1); opacity: 0.8; }
-                    100% { transform: scale(0.85); opacity: 0.4; }
-                }
             `}</style>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                }}
-            >
-                {/* MAIN GALLERY */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {/* MAIN IMAGE */}
                 <Card
                     elevation={0}
                     sx={{
@@ -68,21 +58,16 @@ function ProductMedia({ images = [] }) {
                     <Box
                         sx={{
                             position: 'relative',
-                            height: {
-                                xs: 380,
-                                sm: 450,
-                                md: 520,
-                            },
+                            height: { xs: 380, sm: 450, md: 520 },
                         }}
                     >
-                        {/* LOADING OVERLAY (UPGRADED) */}
+                        {/* LOADING */}
                         {isLoading && (
                             <Box
                                 sx={{
                                     position: 'absolute',
                                     inset: 0,
                                     zIndex: 2,
-                                    overflow: 'hidden',
                                     background: 'linear-gradient(110deg, #f2f2f2 8%, #e8e8e8 18%, #f2f2f2 33%)',
                                     backgroundSize: '200% 100%',
                                     animation: 'shimmer 1.2s infinite linear',
@@ -91,50 +76,32 @@ function ProductMedia({ images = [] }) {
                                     justifyContent: 'center',
                                 }}
                             >
-                                <Box
-                                    sx={{
-                                        width: 60,
-                                        height: 60,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '50%',
-                                        backgroundColor: 'rgba(0,0,0,0.04)',
-                                    }}
-                                >
-                                    <CircularProgress size={28} thickness={4} />
-                                </Box>
+                                <CircularProgress size={28} thickness={4} />
                             </Box>
                         )}
 
                         <AnimatePresence mode="wait">
                             <motion.img
-                                key={images[index]}
-                                src={images[index]}
+                                key={getImg(images[index])}
+                                src={getImg(images[index])}
                                 onClick={() => setOpen(true)}
                                 onLoad={() => setIsLoading(false)}
                                 initial={{
                                     x: direction > 0 ? 120 : -120,
                                     opacity: 0,
                                     scale: 1.05,
-                                    filter: 'blur(8px)',
                                 }}
                                 animate={{
                                     x: 0,
                                     opacity: 1,
                                     scale: 1,
-                                    filter: 'blur(0px)',
                                 }}
                                 exit={{
                                     x: direction > 0 ? -120 : 120,
                                     opacity: 0,
                                     scale: 0.95,
-                                    filter: 'blur(10px)',
                                 }}
-                                transition={{
-                                    duration: 0.45,
-                                    ease: [0.22, 1, 0.36, 1],
-                                }}
+                                transition={{ duration: 0.45 }}
                                 style={{
                                     position: 'absolute',
                                     width: '100%',
@@ -145,124 +112,70 @@ function ProductMedia({ images = [] }) {
                         </AnimatePresence>
                     </Box>
 
-                    {/* NAV BUTTONS */}
-                    <IconButton
-                        onClick={prev}
-                        sx={{
-                            position: 'absolute',
-                            left: 12,
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(255,255,255,0.3)',
-                            backdropFilter: 'blur(10px)',
-                            '&:hover': {
-                                background: '#fff',
-                            },
-                        }}
-                    >
+                    {/* NAV */}
+                    <IconButton onClick={prev} sx={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }}>
                         <ChevronLeft />
                     </IconButton>
 
-                    <IconButton
-                        onClick={next}
-                        sx={{
-                            position: 'absolute',
-                            right: 12,
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(255,255,255,0.3)',
-                            backdropFilter: 'blur(10px)',
-                            '&:hover': {
-                                background: '#fff',
-                            },
-                        }}
-                    >
+                    <IconButton onClick={next} sx={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }}>
                         <ChevronRight />
                     </IconButton>
                 </Card>
 
                 {/* THUMBNAILS */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 1,
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        px: 0.5,
-                        alignItems: 'center',
-                    }}
-                >
-                    {images.map((img, i) => (
-                        <Box
-                            key={i}
-                            component="img"
-                            src={img}
-                            onClick={() => change(i, i > index ? 1 : -1)}
-                            sx={{
-                                width: 72,
-                                height: 72,
-                                borderRadius: 2,
-                                objectFit: 'cover',
-                                cursor: 'pointer',
-                                border: i === index ? '2px solid #111' : '1px solid #ddd',
-                                opacity: i === index ? 1 : 0.55,
-                                transform: i === index ? 'scale(1.08)' : 'scale(1)',
-                                transition: '0.25s',
-                            }}
-                        />
-                    ))}
+                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', px: 0.5 }}>
+                    {images.map((img, i) => {
+                        const src = getImg(img);
+
+                        return (
+                            <Box
+                                key={src + i}
+                                component="img"
+                                src={src}
+                                onClick={() => {
+                                    setIndex(i);
+                                    setIsLoading(true);
+                                }}
+                                sx={{
+                                    width: 72,
+                                    height: 72,
+                                    borderRadius: 2,
+                                    objectFit: 'cover',
+                                    cursor: 'pointer',
+                                    border: i === index ? '2px solid #111' : '1px solid #ddd',
+                                    opacity: i === index ? 1 : 0.55,
+                                    transform: i === index ? 'scale(1.08)' : 'scale(1)',
+                                    transition: '0.25s',
+                                }}
+                            />
+                        );
+                    })}
                 </Box>
             </Box>
 
-            {/* FULLSCREEN MODAL */}
-            <Dialog
-                open={open}
-                onClose={() => setOpen(false)}
-                fullScreen
-                sx={{
-                    backdropFilter: 'blur(10px)',
-                }}
-            >
+            {/* FULLSCREEN */}
+            <Dialog open={open} onClose={() => setOpen(false)} fullScreen>
                 <Box
                     sx={{
-                        position: 'relative',
                         width: '100%',
                         height: '100vh',
                         background: '#000',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        position: 'relative',
                     }}
                 >
-                    {/* CLOSE */}
-                    <IconButton
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: 'absolute',
-                            top: 20,
-                            right: 20,
-                            color: '#fff',
-                            zIndex: 10,
-                        }}
-                    >
+                    <IconButton onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 20, right: 20, color: '#fff' }}>
                         <Close />
                     </IconButton>
 
-                    {/* IMAGE */}
                     <motion.img
-                        key={images[index]}
-                        src={images[index]}
-                        initial={{
-                            opacity: 0,
-                            scale: 0.9,
-                        }}
-                        animate={{
-                            opacity: 1,
-                            scale: 1,
-                        }}
-                        transition={{
-                            duration: 0.3,
-                        }}
+                        key={getImg(images[index])}
+                        src={getImg(images[index])}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
                         style={{
                             maxWidth: '100%',
                             maxHeight: '100%',
@@ -270,29 +183,11 @@ function ProductMedia({ images = [] }) {
                         }}
                     />
 
-                    {/* PREV */}
-                    <IconButton
-                        onClick={prev}
-                        sx={{
-                            position: 'absolute',
-                            left: 20,
-                            color: '#fff',
-                            background: 'rgba(255,255,255,0.15)',
-                        }}
-                    >
+                    <IconButton onClick={prev} sx={{ position: 'absolute', left: 20, color: '#fff' }}>
                         <ChevronLeft fontSize="large" />
                     </IconButton>
 
-                    {/* NEXT */}
-                    <IconButton
-                        onClick={next}
-                        sx={{
-                            position: 'absolute',
-                            right: 20,
-                            color: '#fff',
-                            background: 'rgba(255,255,255,0.15)',
-                        }}
-                    >
+                    <IconButton onClick={next} sx={{ position: 'absolute', right: 20, color: '#fff' }}>
                         <ChevronRight fontSize="large" />
                     </IconButton>
                 </Box>

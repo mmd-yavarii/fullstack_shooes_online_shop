@@ -1,7 +1,13 @@
+import { v2 as cloudinary } from 'cloudinary';
+import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 import BanerImg from '@/models/BanerImg';
-import fs from 'fs';
-import path from 'path';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -9,35 +15,33 @@ export default async function handler(req, res) {
     }
 
     try {
-        const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
+        await connectDB();
 
-        const files = fs.readdirSync(uploadsPath);
+        const result = await cloudinary.search.expression('folder:products').max_results(200).execute();
 
         const products = await Product.find().select('images');
         const banners = await BanerImg.find().select('image');
-        const allProductImages = [...products.flatMap((p) => p.images || []), ...banners.map((b) => b.image)];
 
-        const images = files
-            .filter(
-                (file) => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.webp') || file.endsWith('.gif')
-            )
-            .map((file) => ({
-                name: file,
-                url: `/uploads/${file}`,
-                idProductImg: allProductImages.includes(`/uploads/${file}`),
-            }));
+        // فقط publicId واقعی و تمیز
+        const usedPublicIds = new Set(
+            [
+                ...products.flatMap((p) => p.images || []).map((img) => img.publicId),
+                ...banners.map((b) => b.image), // اگر banner هم publicId نیست، باید اصلاحش کنی
+            ].filter(Boolean)
+        );
 
-        return res.status(200).json({
-            count: images.length,
-            images,
+        const images = result.resources.map((img) => {
+            const isUsed = usedPublicIds.has(img.public_id);
 
-            allProductImages,
+            return {
+                url: img.secure_url,
+                publicId: img.public_id,
+                usedInApp: isUsed,
+            };
         });
-    } catch (error) {
-        console.error(error);
 
-        return res.status(500).json({
-            message: 'Error reading uploads folder',
-        });
+        return res.status(200).json({ images });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
     }
 }

@@ -11,28 +11,29 @@ function UploadsPage() {
     const router = useRouter();
 
     useEffect(() => {
-        async function checkAuth() {
-            try {
-                const res = await fetch('/api/auth/verify', {
-                    credentials: 'include',
-                });
+        const init = async () => {
+            await checkAuth();
+            await fetchImages();
+        };
 
-                const data = await res.json();
+        init();
+    }, []);
 
-                if (!data.valid) {
-                    router.replace('/admin/login_admin');
-                }
-            } catch (err) {
-                router.back();
+    const checkAuth = async () => {
+        try {
+            const res = await fetch('/api/auth/verify', {
+                credentials: 'include',
+            });
+
+            const data = await res.json();
+
+            if (!data.valid) {
+                router.replace('/admin/login_admin');
             }
+        } catch {
+            router.replace('/admin/login_admin');
         }
-
-        checkAuth();
-    }, []);
-
-    useEffect(() => {
-        fetchImages();
-    }, []);
+    };
 
     const fetchImages = async () => {
         try {
@@ -41,43 +42,38 @@ function UploadsPage() {
             const res = await fetch('/api/uploads/list');
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message || 'خطا در دریافت تصاویر');
-            }
+            if (!res.ok) throw new Error(data.message || 'Error');
 
             setImages(data.images || []);
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'خطا در دریافت تصاویر');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (url) => {
-        const confirmDelete = window.confirm('آیا مطمئنی می‌خوای حذف کنی؟');
-        if (!confirmDelete) return;
+    const handleDelete = async (publicId) => {
+        if (!confirm('آیا مطمئنی می‌خواهی این تصویر حذف شود؟')) return;
 
         try {
-            setDeleting(url);
+            setDeleting(publicId);
 
             const res = await fetch('/api/delete-image', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ publicId }),
             });
 
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message || 'خطا در حذف تصویر');
+            if (!res.ok || data?.result === 'not found') {
+                throw new Error(data.message || 'Delete failed');
             }
 
-            // حذف از state بدون رفرش
-            setImages((prev) => prev.filter((img) => img.url !== url));
+            // فقط وقتی Cloudinary OK بود UI آپدیت کن
+            setImages((prev) => prev.filter((img) => img.publicId !== publicId));
         } catch (err) {
-            alert(err.message);
+            alert(err.message || 'خطا در حذف تصویر');
         } finally {
             setDeleting(null);
         }
@@ -101,7 +97,7 @@ function UploadsPage() {
 
     return (
         <div className="max-w-[1000px] mx-auto p-4">
-            <p className="text-[20px] text-center my-[30px]">مدیریت تصاویر اپلود شده در سایت</p>
+            <p className="text-[20px] text-center my-[30px]">مدیریت تصاویر</p>
 
             <Box
                 sx={{
@@ -115,35 +111,69 @@ function UploadsPage() {
                     gap: 2,
                 }}
             >
-                {images.map((img) => (
-                    <Card
-                        key={img.name}
-                        sx={{
-                            borderRadius: '16px',
-                            overflow: 'hidden',
-                            transition: '0.2s',
-                            '&:hover': {
-                                transform: 'scale(1.02)',
-                            },
-                        }}
-                    >
-                        <CardMedia component="img" image={img.url} alt={img.name} sx={{ height: 200, objectFit: 'cover' }} />
+                {images.map((img) => {
+                    const used = img.usedInApp;
 
-                        {img.idProductImg ? (
-                            <p className="text-gray-500 text-center w-full p-2 bg-gray-50 cursor-pointer">
-                                این تصویر در محصولات استفاده شده و قابل حذف نیست
-                            </p>
-                        ) : (
-                            <button
-                                className="text-red-500 w-full p-2 bg-red-50 cursor-pointer"
-                                disabled={deleting === img.url}
-                                onClick={() => handleDelete(img.url)}
+                    return (
+                        <Card
+                            key={img.publicId}
+                            sx={{
+                                borderRadius: '16px',
+                                overflow: 'hidden',
+                                position: 'relative',
+                                opacity: used ? 0.5 : 1,
+                            }}
+                        >
+                            <CardMedia component="img" image={img.url} sx={{ height: 200, objectFit: 'cover' }} />
+
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 10,
+                                    left: 10,
+                                    background: used ? '#000' : '#16a34a',
+                                    color: '#fff',
+                                    fontSize: 12,
+                                    padding: '4px 8px',
+                                    borderRadius: 999,
+                                }}
                             >
-                                {deleting === img.url ? 'در حال حذف...' : 'حذف'}
-                            </button>
-                        )}
-                    </Card>
-                ))}
+                                {used ? 'در حال استفاده' : 'آزاد'}
+                            </div>
+
+                            {used ? (
+                                <div
+                                    style={{
+                                        padding: 10,
+                                        textAlign: 'center',
+                                        background: '#f3f4f6',
+                                        color: '#6b7280',
+                                        fontSize: 13,
+                                    }}
+                                >
+                                    قابل حذف نیست
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => handleDelete(img.publicId)}
+                                    disabled={deleting === img.publicId}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        background: '#ffe5e5',
+                                        color: '#d11a2a',
+                                        border: 'none',
+                                        fontWeight: 'bold',
+                                        cursor: deleting === img.publicId ? 'not-allowed' : 'pointer',
+                                        opacity: deleting === img.publicId ? 0.6 : 1,
+                                    }}
+                                >
+                                    {deleting === img.publicId ? 'در حال حذف...' : 'حذف'}
+                                </button>
+                            )}
+                        </Card>
+                    );
+                })}
             </Box>
         </div>
     );

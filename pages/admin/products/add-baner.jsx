@@ -261,8 +261,7 @@ function AddBaner() {
                                         overflow: 'hidden',
                                     }}
                                 >
-                                    <CardMedia component="img" image={item.image} sx={{ height: 220 }} />
-
+                                    <CardMedia component="img" image={item.image?.url || '/placeholder.png'} sx={{ height: 220 }} />
                                     <CardContent>
                                         <Typography variant="h6" fontWeight={700}>
                                             {item.title}

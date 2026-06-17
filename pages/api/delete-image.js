@@ -1,40 +1,41 @@
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({
-            message: 'Method not allowed',
-        });
+        return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    const { url } = req.body;
+    const { publicId } = req.body;
 
-    if (!url) {
-        return res.status(400).json({
-            message: 'Image url is required',
-        });
+    if (!publicId) {
+        return res.status(400).json({ message: 'publicId required' });
     }
 
     try {
-        const filePath = path.join(process.cwd(), 'public', url);
+        const result = await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'image',
+        });
 
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({
-                message: 'File not found',
+        if (result.result !== 'ok') {
+            return res.status(400).json({
+                message: 'Delete failed',
+                result,
             });
         }
 
-        fs.unlinkSync(filePath);
-
         return res.status(200).json({
-            message: 'File deleted successfully',
-            url,
+            message: 'deleted',
+            result,
         });
     } catch (err) {
-        console.log(err);
         return res.status(500).json({
-            message: 'Failed to delete file',
+            message: err.message,
         });
     }
 }

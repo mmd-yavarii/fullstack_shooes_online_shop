@@ -11,13 +11,13 @@ export default function UploadImg({ form, setForm }) {
 
     // ADD IMAGE
     const handleFileChange = async (e) => {
-        const files = Array.from(e.target.files);
+        const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
         setLoading(true);
 
         try {
-            const uploadedUrls = [];
+            const uploadedImages = [];
 
             for (const file of files) {
                 const formData = new FormData();
@@ -29,15 +29,20 @@ export default function UploadImg({ form, setForm }) {
                 });
 
                 const data = await res.json();
-                uploadedUrls.push(data.url);
+
+                // مهم: باید url و publicId داشته باشه
+                uploadedImages.push({
+                    url: data.url,
+                    publicId: data.publicId,
+                });
             }
 
             setForm((prev) => ({
                 ...prev,
-                images: [...prev.images, ...uploadedUrls],
+                images: [...(prev.images || []), ...uploadedImages],
             }));
         } catch (err) {
-            console.log(err);
+            console.log('upload error:', err);
         } finally {
             setLoading(false);
         }
@@ -46,35 +51,46 @@ export default function UploadImg({ form, setForm }) {
     // DELETE IMAGE
     const confirmDelete = async () => {
         try {
-            const url = form.images[selectedIndex];
+            setForm((prev) => {
+                const image = prev.images?.[selectedIndex];
 
-            const res = await fetch('/api/delete-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url }),
+                if (!image) {
+                    console.log('NO IMAGE FOUND');
+                    return prev;
+                }
+
+                if (!image.publicId) {
+                    console.log('NO PUBLIC ID');
+                    return prev;
+                }
+
+                // call API outside state update
+                fetch('/api/delete-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ publicId: image.publicId }),
+                }).catch(console.log);
+
+                const updatedImages = prev.images.filter((_, i) => i !== selectedIndex);
+
+                setOpen(false);
+                setSelectedIndex(null);
+
+                return {
+                    ...prev,
+                    images: updatedImages,
+                };
             });
-
-            if (!res.ok) return;
-
-            setForm((prev) => ({
-                ...prev,
-                images: prev.images.filter((_, i) => i !== selectedIndex),
-            }));
-
-            setOpen(false);
-            setSelectedIndex(null);
         } catch (err) {
-            console.log(err);
+            console.log('delete error:', err);
         }
     };
 
     return (
         <div className="w-full max-w-[670px] my-auto">
             {/* INPUT */}
-            <label className="block w-full mb-2 cursor-pointer ">
-                <div className="w-full h-20 flex items-center justify-center flex-col gap-3 py-3 border border-dashed border-gray-400 rounded-lg transition">
+            <label className="block w-full mb-2 cursor-pointer">
+                <div className="w-full h-20 flex items-center justify-center flex-col gap-3 py-3 border border-dashed border-gray-400 rounded-lg">
                     <LuImagePlus size={30} className="opacity-50" />
                     <span className="text-sm text-gray-700 font-medium">برای انتخاب تصاویر کلیک کنید</span>
                 </div>
@@ -90,7 +106,7 @@ export default function UploadImg({ form, setForm }) {
             )}
 
             {/* EMPTY */}
-            {!form.images.length && !loading && (
+            {!form.images?.length && !loading && (
                 <Box
                     mt={3}
                     p={3}
@@ -100,8 +116,6 @@ export default function UploadImg({ form, setForm }) {
                         borderRadius: 4,
                         color: 'text.secondary',
                         fontSize: 14,
-                        textAlign: 'center',
-                        padding: '10px',
                     }}
                 >
                     هنوز عکسی آپلود نشده
@@ -109,9 +123,9 @@ export default function UploadImg({ form, setForm }) {
             )}
 
             {/* PREVIEW */}
-            {form.images.length > 0 && (
+            {form.images?.length > 0 && (
                 <Grid container spacing={1} mt={2}>
-                    {form.images.map((url, i) => (
+                    {form.images.map((img, i) => (
                         <Grid item xs={4} key={i}>
                             <Box
                                 sx={{
@@ -119,11 +133,10 @@ export default function UploadImg({ form, setForm }) {
                                     borderRadius: 4,
                                     overflow: 'hidden',
                                     height: 90,
-                                    '&:hover': { transform: 'scale(1.05)' },
                                 }}
                             >
                                 <img
-                                    src={url}
+                                    src={img.url}
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -145,7 +158,6 @@ export default function UploadImg({ form, setForm }) {
                                         height: 30,
                                         bgcolor: 'rgba(0,0,0,0.6)',
                                         color: 'white',
-                                        '&:hover': { bgcolor: 'rgba(255,0,0,0.85)' },
                                     }}
                                 >
                                     <MdClose size={14} />
@@ -158,11 +170,11 @@ export default function UploadImg({ form, setForm }) {
 
             {/* DIALOG */}
             <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle sx={{ fontWeight: 600 }}>این تصویر برای همیشه حذف می‌شود. مطمئنی؟</DialogTitle>
+                <DialogTitle>این تصویر حذف شود؟</DialogTitle>
+
                 <DialogActions>
                     <button onClick={() => setOpen(false)}>لغو</button>
-
-                    <button color="error" variant="contained" onClick={confirmDelete} className="text-red-500 mr-4">
+                    <button color="error" onClick={confirmDelete} className="text-red-500 mr-3">
                         حذف
                     </button>
                 </DialogActions>

@@ -32,7 +32,7 @@ function ProductCard({ data }) {
             {/* Image */}
             <div className="overflow-hidden bg-gray-50 relative">
                 <Image
-                    src={data.images?.[0]}
+                    src={data.images?.[0]?.url || '/placeholder.png'}
                     alt={data.title}
                     width={500}
                     height={500}

@@ -86,8 +86,8 @@ function BannerSlider() {
 
                 {/* image */}
                 <img
-                    src={current.image}
-                    alt={current.title}
+                    src={current?.image?.url}
+                    alt={current?.title || 'banner'}
                     className={`absolute w-full h-full object-cover transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}
                 />
 

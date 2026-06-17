@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     try {
         await connectDB();
 
-        const { title, description, price, discount = 0, category, brand, gender, sizes, images, isActive = true, group } = req.body;
+        let { title, description, price, discount = 0, category, brand, gender, sizes, images, isActive = true, group } = req.body;
 
         // VALIDATION
         if (!title || !description || price === undefined || !category || !group || !brand?.name || !gender) {
@@ -39,43 +39,56 @@ export default async function handler(req, res) {
             });
         }
 
-        // price validation
         if (Number(price) < 0) {
             return res.status(400).json({
                 message: 'Invalid price',
             });
         }
 
-        // discount validation
         if (Number(discount) < 0 || Number(discount) > 100) {
             return res.status(400).json({
                 message: 'Discount must be between 0 and 100',
             });
         }
 
-        // sizes validation
         if (!Array.isArray(sizes) || sizes.length === 0) {
             return res.status(400).json({
                 message: 'At least one size is required',
             });
         }
 
-        // images validation
-        if (!Array.isArray(images) || images.length === 0) {
+        // 🔥 FIXED IMAGES HANDLING (IMPORTANT PART)
+        if (!Array.isArray(images)) {
+            images = [];
+        }
+
+        images = images
+            .filter(Boolean)
+            .map((img) => {
+                if (typeof img === 'string') {
+                    return {
+                        url: img,
+                        publicId: null,
+                    };
+                }
+
+                return {
+                    url: img?.url || '',
+                    publicId: img?.publicId || null,
+                };
+            })
+            .filter((img) => img.url);
+
+        if (images.length === 0) {
             return res.status(400).json({
                 message: 'At least one image is required',
             });
         }
 
-        // slug
-        let slug = createSlug(title);
+        // SLUG
+        const baseSlug = createSlug(title);
+        let slug = baseSlug || `product-${Date.now()}`;
 
-        // fallback slug
-        if (!slug) {
-            slug = `product-${Date.now()}`;
-        }
-
-        // unique slug
         const existingProduct = await Product.findOne({ slug });
 
         if (existingProduct) {

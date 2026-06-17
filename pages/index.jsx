@@ -131,5 +131,3 @@ export async function getStaticProps() {
         revalidate: 3600,
     };
 }
-
-// const res = await fetch(`/api/product?discounts=true`);
