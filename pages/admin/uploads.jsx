@@ -1,63 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { CircularProgress, Card, CardMedia, Box } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 function UploadsPage() {
-    const [images, setImages] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const router = useRouter();
+    const queryClient = useQueryClient();
+
     const [deleting, setDeleting] = useState(null);
 
-    const router = useRouter();
-
-    useEffect(() => {
-        const init = async () => {
-            await checkAuth();
-            await fetchImages();
-        };
-
-        init();
-    }, []);
-
-    const checkAuth = async () => {
-        try {
-            const res = await fetch('/api/auth/verify', {
-                credentials: 'include',
-            });
-
-            const data = await res.json();
-
-            if (!data.valid) {
-                router.replace('/admin/login_admin');
-            }
-        } catch {
-            router.replace('/admin/login_admin');
-        }
-    };
-
-    const fetchImages = async () => {
-        try {
-            setLoading(true);
-
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['uploads'],
+        queryFn: async () => {
             const res = await fetch('/api/uploads/list');
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.message || 'Error');
 
-            setImages(data.images || []);
-        } catch (err) {
-            setError(err.message || 'خطا در دریافت تصاویر');
-        } finally {
-            setLoading(false);
-        }
-    };
+            return data;
+        },
+    });
 
-    const handleDelete = async (publicId) => {
-        if (!confirm('آیا مطمئنی می‌خواهی این تصویر حذف شود؟')) return;
+    const images = data?.images || [];
 
-        try {
-            setDeleting(publicId);
-
+    // DELETE IMAGE
+    const deleteMutation = useMutation({
+        mutationFn: async (publicId) => {
             const res = await fetch('/api/delete-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -70,16 +38,37 @@ function UploadsPage() {
                 throw new Error(data.message || 'Delete failed');
             }
 
-            // فقط وقتی Cloudinary OK بود UI آپدیت کن
-            setImages((prev) => prev.filter((img) => img.publicId !== publicId));
-        } catch (err) {
-            alert(err.message || 'خطا در حذف تصویر');
-        } finally {
+            return publicId;
+        },
+        onMutate: (publicId) => {
+            setDeleting(publicId);
+        },
+        onSuccess: (publicId) => {
+            queryClient.setQueryData(['uploads'], (old) => {
+                if (!old) return old;
+
+                return {
+                    ...old,
+                    images: old.images.filter((img) => img.publicId !== publicId),
+                };
+            });
+
             setDeleting(null);
-        }
+        },
+        onError: (err) => {
+            alert(err.message || 'خطا در حذف تصویر');
+            setDeleting(null);
+        },
+    });
+
+    const handleDelete = (publicId) => {
+        if (!confirm('آیا مطمئنی می‌خواهی این تصویر حذف شود؟')) return;
+
+        deleteMutation.mutate(publicId);
     };
 
-    if (loading) {
+    // loading
+    if (isLoading) {
         return (
             <div className="flex justify-center items-center py-20">
                 <CircularProgress />
@@ -87,8 +76,9 @@ function UploadsPage() {
         );
     }
 
+    // error
     if (error) {
-        return <div className="text-center py-20 text-red-500">{error}</div>;
+        return <div className="text-center py-20 text-red-500">{error.message}</div>;
     }
 
     if (!images.length) {

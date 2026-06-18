@@ -34,14 +34,13 @@ export default async function handler(req, res) {
         const orders = await Transaction.find({
             'user.phone': cleanPhone,
         })
-            .select('-__v') // پاکسازی اضافی
+            .select('-__v')
             .populate({
                 path: 'items.product',
                 select: 'title images price',
             })
             .sort({ createdAt: -1 });
 
-        // بهتر از 404
         return res.status(200).json({
             data: orders,
             count: orders.length,

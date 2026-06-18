@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Button, Dialog, DialogTitle, DialogActions, Grid, IconButton, CircularProgress, Box } from '@mui/material';
+import { Dialog, DialogTitle, DialogActions, Grid, IconButton, CircularProgress, Box } from '@mui/material';
+
+import { useMutation } from '@tanstack/react-query';
 
 import { MdClose } from 'react-icons/md';
 import { LuImagePlus } from 'react-icons/lu';
@@ -9,14 +11,9 @@ export default function UploadImg({ form, setForm }) {
     const [open, setOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(null);
 
-    // ADD IMAGE
-    const handleFileChange = async (e) => {
-        const files = Array.from(e.target.files || []);
-        if (!files.length) return;
-
-        setLoading(true);
-
-        try {
+    // UPLOAD IMAGES (mutation)
+    const uploadMutation = useMutation({
+        mutationFn: async (files) => {
             const uploadedImages = [];
 
             for (const file of files) {
@@ -30,60 +27,85 @@ export default function UploadImg({ form, setForm }) {
 
                 const data = await res.json();
 
-                // مهم: باید url و publicId داشته باشه
+                if (!res.ok) throw new Error(data.message || 'Upload failed');
+
                 uploadedImages.push({
                     url: data.url,
                     publicId: data.publicId,
                 });
             }
 
+            return uploadedImages;
+        },
+        onMutate: () => {
+            setLoading(true);
+        },
+        onSuccess: (uploadedImages) => {
             setForm((prev) => ({
                 ...prev,
                 images: [...(prev.images || []), ...uploadedImages],
             }));
-        } catch (err) {
+        },
+        onError: (err) => {
             console.log('upload error:', err);
-        } finally {
+        },
+        onSettled: () => {
             setLoading(false);
-        }
-    };
+        },
+    });
 
-    // DELETE IMAGE
-    const confirmDelete = async () => {
-        try {
+    // DELETE IMAGE (mutation)
+    const deleteMutation = useMutation({
+        mutationFn: async (publicId) => {
+            const res = await fetch('/api/delete-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    publicId,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.message || 'Delete failed');
+
+            return publicId;
+        },
+        onSuccess: (_, publicId) => {
             setForm((prev) => {
-                const image = prev.images?.[selectedIndex];
-
-                if (!image) {
-                    console.log('NO IMAGE FOUND');
-                    return prev;
-                }
-
-                if (!image.publicId) {
-                    console.log('NO PUBLIC ID');
-                    return prev;
-                }
-
-                // call API outside state update
-                fetch('/api/delete-image', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ publicId: image.publicId }),
-                }).catch(console.log);
-
-                const updatedImages = prev.images.filter((_, i) => i !== selectedIndex);
-
-                setOpen(false);
-                setSelectedIndex(null);
+                const updated = prev.images.filter((img) => img.publicId !== publicId);
 
                 return {
                     ...prev,
-                    images: updatedImages,
+                    images: updated,
                 };
             });
-        } catch (err) {
+
+            setOpen(false);
+            setSelectedIndex(null);
+        },
+        onError: (err) => {
             console.log('delete error:', err);
-        }
+        },
+    });
+
+    // ADD IMAGE
+    const handleFileChange = async (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        uploadMutation.mutate(files);
+    };
+
+    // DELETE CONFIRM
+    const confirmDelete = async () => {
+        const image = form.images?.[selectedIndex];
+
+        if (!image?.publicId) return;
+
+        deleteMutation.mutate(image.publicId);
     };
 
     return (
@@ -174,7 +196,7 @@ export default function UploadImg({ form, setForm }) {
 
                 <DialogActions>
                     <button onClick={() => setOpen(false)}>لغو</button>
-                    <button color="error" onClick={confirmDelete} className="text-red-500 mr-3">
+                    <button className="text-red-500 mr-3" onClick={confirmDelete}>
                         حذف
                     </button>
                 </DialogActions>

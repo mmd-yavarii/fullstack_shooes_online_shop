@@ -20,6 +20,8 @@ export default function OrderModal({ open, onClose }) {
     const [error, setError] = useState('');
     const [searched, setSearched] = useState(false);
 
+    console.log(orders);
+
     const handleSubmit = async () => {
         if (phone.length < 10) {
             alert('شماره معتبر نیست');

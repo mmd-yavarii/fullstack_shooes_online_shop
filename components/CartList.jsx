@@ -34,7 +34,7 @@ export default function CartList({ cart, removeFromCart }) {
                             >
                                 <Box
                                     component="img"
-                                    src={item.image}
+                                    src={item?.image?.url}
                                     onClick={() => goToProduct(item.productId)}
                                     sx={{
                                         width: '100%',

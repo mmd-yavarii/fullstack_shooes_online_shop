@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { CircularProgress, Box, Typography, TextField, Stack, Chip } from '@mui/material';
+
+import { useQuery } from '@tanstack/react-query';
 
 import TransactionCard from '@/components/admin/TransactionCard';
 import TransactionSummaryCard from '@/components/admin/TransactionSummaryCard';
@@ -9,59 +11,27 @@ import TransactionSummaryCard from '@/components/admin/TransactionSummaryCard';
 function Index() {
     const router = useRouter();
 
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
-
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
 
-    useEffect(() => {
-        async function checkAuth() {
-            try {
-                const res = await fetch('/api/auth/verify', {
-                    credentials: 'include',
-                });
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['transactions'],
+        queryFn: async () => {
+            const res = await fetch('/api/transaction', {
+                credentials: 'include',
+            });
 
-                const data = await res.json();
+            const data = await res.json();
 
-                if (!data.valid) {
-                    router.replace('/admin/login_admin');
-                }
-            } catch (err) {
-                router.back();
+            if (!res.ok) {
+                throw new Error('Failed to fetch transactions');
             }
-        }
 
-        checkAuth();
-    }, []);
+            return data;
+        },
+    });
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const fetchTransactions = async () => {
-            try {
-                setLoading(true);
-
-                const res = await fetch('/api/transaction', {
-                    signal: controller.signal,
-                });
-
-                const data = await res.json();
-
-                setTransactions(data.data || []);
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.log(err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTransactions();
-
-        return () => controller.abort();
-    }, []);
+    const transactions = data?.data || [];
 
     const processedData = useMemo(() => {
         let pending = 0;
@@ -73,7 +43,6 @@ function Index() {
         const normalizedSearch = search.trim().toLowerCase();
 
         for (const t of transactions) {
-            // summary
             switch (t.orderStatus) {
                 case 'pending':
                     pending++;
@@ -87,10 +56,8 @@ function Index() {
                     break;
             }
 
-            // search FIX
             const matchSearch = !normalizedSearch || t.user?.fullName?.toLowerCase().includes(normalizedSearch);
 
-            // filter
             const matchStatus = filter === 'all' ? true : t.orderStatus === filter;
 
             if (matchStatus && matchSearch) {
@@ -110,10 +77,24 @@ function Index() {
         };
     }, [transactions, filter, search]);
 
-    if (loading) {
+    if (isLoading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    mt: 5,
+                }}
+            >
                 <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ textAlign: 'center', mt: 5 }}>
+                <Typography color="error">خطا در دریافت تراکنش‌ها</Typography>
             </Box>
         );
     }
@@ -124,7 +105,14 @@ function Index() {
 
             <TextField fullWidth label="جستجو بر اساس نام" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ mb: 2 }} />
 
-            <Stack direction="row" sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+            <Stack
+                direction="row"
+                sx={{
+                    mb: 3,
+                    flexWrap: 'wrap',
+                    gap: 1,
+                }}
+            >
                 <Chip
                     label="همه"
                     clickable

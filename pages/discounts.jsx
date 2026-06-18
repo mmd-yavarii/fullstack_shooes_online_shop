@@ -1,58 +1,64 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
 import AllProductsList from '@/components/AllProductsList';
 import { Pagination, Stack } from '@mui/material';
 
+const fetchDiscountProducts = async ({ queryKey }) => {
+    const [, page, categoryGroup, subCategory, search] = queryKey;
+
+    const res = await fetch(`/api/product?discounts=true&page=${page}&categoryGroup=${categoryGroup}&subCategory=${subCategory}&search=${search}`);
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch products');
+    }
+
+    return res.json();
+};
+
 export default function DiscountPage() {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
-    const [productsLength, setProductsLength] = useState(0);
 
     const [categoryGroup, setCategoryGroup] = useState('all');
     const [subCategory, setSubCategory] = useState('all');
     const [search, setSearch] = useState('');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['discount-products', page, categoryGroup, subCategory, search],
+        queryFn: fetchDiscountProducts,
+        placeholderData: (previousData) => previousData,
+    });
 
-            try {
-                const res = await fetch(
-                    `/api/product?discounts=true&page=${page}&categoryGroup=${categoryGroup}&subCategory=${subCategory}&search=${search}`
-                );
-                const data = await res.json();
-
-                setProducts(data);
-                setProductsLength(data.productsLength || 0);
-            } catch (err) {
-                console.log(err);
-                setProducts({ products: [], productsLength: 0 });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [page, categoryGroup, subCategory, search]);
+    const products = data?.products || [];
+    const productsLength = data?.productsLength || 0;
 
     const totalPages = Math.ceil(productsLength / 8);
 
+    if (error) {
+        return <div className="text-center py-10">خطا در دریافت محصولات</div>;
+    }
+
     return (
-        <div style={{ padding: 20, maxWidth: '900px', margin: '0 auto' }}>
+        <div
+            style={{
+                padding: 20,
+                maxWidth: '900px',
+                margin: '0 auto',
+            }}
+        >
             <span className="mb-4 inline-block font-semibold">همه محصولات تخفیف دار</span>
 
             <AllProductsList
-                products={products.products || []}
+                products={products}
                 setCategoryGroup={setCategoryGroup}
                 categoryGroup={categoryGroup}
                 subCategory={subCategory}
                 setSubCategory={setSubCategory}
-                loading={loading}
+                loading={isLoading}
                 setSearch={setSearch}
                 search={search}
             />
 
-            {/* PAGINATION */}
             <div className="flex items-center justify-center">
                 <Stack spacing={2} alignItems="center" className="my-8">
                     <Pagination

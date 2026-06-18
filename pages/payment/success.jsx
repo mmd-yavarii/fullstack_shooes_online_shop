@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-
-import { Box, Typography, Paper, Button, Stack, Chip } from '@mui/material';
+import { Box, Typography, Paper, Button, Stack, Chip, Divider } from '@mui/material';
 
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import { useCart } from '@/context/CartContext';
 import { useSearchParams } from 'next/navigation';
 
@@ -16,17 +14,30 @@ function Success() {
     const status = searchParams.get('status');
     const pay = searchParams.get('pay');
 
+    const ran = useRef(false);
+
     async function reduceProductQty() {
-        const response = await fetch(`/api/product/reduce-bue-qty/${pay}`);
-        await response.data;
+        try {
+            const res = await fetch(`/api/product/reduce-bue-qty/${pay}`);
+
+            if (!res.ok) return;
+
+            await res.json();
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     useEffect(() => {
-        if (status === 'success') {
-            reduceProductQty();
+        if (status !== 'success' || !pay || ran.current) return;
+
+        ran.current = true;
+
+        (async () => {
+            await reduceProductQty();
             clearCart();
-        }
-    }, [status, clearCart]);
+        })();
+    }, [status, pay, clearCart]);
 
     return (
         <Box
@@ -35,206 +46,121 @@ function Success() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 35%, #ffffff 100%)',
-                position: 'relative',
-                overflow: 'hidden',
+                background: 'radial-gradient(circle at top, #ecfdf5 0%, #ffffff 60%)',
                 p: 2,
             }}
         >
-            {/* BACKGROUND BLUR */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    width: 300,
-                    height: 300,
-                    borderRadius: '50%',
-                    background: '#22c55e20',
-                    filter: 'blur(100px)',
-                    top: -50,
-                    left: -50,
-                }}
-            />
-
-            <Box
-                sx={{
-                    position: 'absolute',
-                    width: 250,
-                    height: 250,
-                    borderRadius: '50%',
-                    background: '#16a34a20',
-                    filter: 'blur(100px)',
-                    bottom: -60,
-                    right: -60,
-                }}
-            />
-
             <Paper
                 elevation={0}
                 sx={{
-                    position: 'relative',
-                    maxWidth: 560,
                     width: '100%',
-                    borderRadius: 6,
+                    maxWidth: 520,
+                    borderRadius: 5,
                     overflow: 'hidden',
-                    backdropFilter: 'blur(14px)',
-                    background: 'rgba(255,255,255,0.75)',
-                    border: '1px solid rgba(255,255,255,0.6)',
+                    border: '1px solid #e5e7eb',
                     boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
+                    textAlign: 'center',
                 }}
             >
-                {/* TOP SECTION */}
+                {/* HEADER */}
                 <Box
                     sx={{
-                        background: 'linear-gradient(135deg, #15803d 0%, #22c55e 100%)',
+                        background: 'linear-gradient(135deg, #16a34a, #22c55e)',
                         color: 'white',
-                        textAlign: 'center',
-                        px: 4,
-                        py: 6,
+                        p: 5,
                         position: 'relative',
                     }}
                 >
                     <Box
                         sx={{
-                            width: 120,
-                            height: 120,
-                            mx: 'auto',
-                            mb: 3,
+                            width: 110,
+                            height: 110,
                             borderRadius: '50%',
+                            mx: 'auto',
+                            mb: 2,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             background: 'rgba(255,255,255,0.15)',
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
                         }}
                     >
-                        <CheckCircleRoundedIcon
-                            sx={{
-                                fontSize: 70,
-                            }}
-                        />
+                        <CheckCircleRoundedIcon sx={{ fontSize: 60 }} />
                     </Box>
 
                     <Chip
-                        label="پرداخت تایید شد"
+                        label="پرداخت موفق"
                         sx={{
-                            mb: 2,
-                            backgroundColor: 'rgba(255,255,255,0.15)',
                             color: 'white',
+                            backgroundColor: 'rgba(255,255,255,0.2)',
                             fontWeight: 700,
-                            backdropFilter: 'blur(6px)',
+                            mb: 2,
                         }}
                     />
 
-                    <Typography
-                        variant="h3"
-                        fontWeight={900}
-                        sx={{
-                            mb: 1,
-                            fontSize: {
-                                xs: '2rem',
-                                sm: '2.5rem',
-                            },
-                        }}
-                    >
-                        پرداخت موفق
+                    <Typography variant="h4" fontWeight={900}>
+                        سفارش ثبت شد
                     </Typography>
 
-                    <Typography
-                        variant="h3"
-                        fontWeight={900}
-                        sx={{
-                            mb: 1,
-                            fontSize: {
-                                xs: '1rem',
-                                sm: '1.2rem',
-                            },
-                        }}
-                    >
-                        شماره پیگیری پرداخت :‌ {pay}
-                    </Typography>
-
-                    <Typography
-                        sx={{
-                            opacity: 0.9,
-                            fontSize: 15,
-                            maxWidth: 380,
-                            mx: 'auto',
-                            lineHeight: 2,
-                        }}
-                    >
-                        سفارش شما با موفقیت ثبت شد و پرداخت با موفقیت انجام گردید.
-                    </Typography>
+                    <Typography sx={{ mt: 1, opacity: 0.9 }}>پرداخت شما با موفقیت انجام شد</Typography>
                 </Box>
 
-                {/* CONTENT */}
-                <Box
-                    sx={{
-                        p: {
-                            xs: 3,
-                            sm: 5,
-                        },
-                    }}
-                >
-                    {/* INFO BOX */}
-                    <Box
+                {/* BODY */}
+                <Box sx={{ p: 4 }}>
+                    <Typography
                         sx={{
-                            p: 3,
-                            borderRadius: 4,
-                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                            border: '1px solid #e2e8f0',
-                            mb: 4,
+                            fontSize: 14,
+                            color: 'text.secondary',
+                            mb: 2,
                         }}
                     >
-                        <Typography fontWeight={800} mb={1}>
-                            اطلاعات پرداخت
-                        </Typography>
+                        کد پیگیری پرداخت:
+                    </Typography>
 
-                        <Typography
-                            color="text.secondary"
-                            sx={{
-                                lineHeight: 2,
-                                fontSize: 14,
-                            }}
-                        >
-                            وضعیت سفارش شما در حال پردازش است. جزئیات و وضعیت سفارش از طریق پیگیری با شماره تلفن قابل مشاهده است.{' '}
-                        </Typography>
-                    </Box>
+                    <Typography
+                        sx={{
+                            fontSize: 18,
+                            fontWeight: 800,
+                            letterSpacing: 1,
+                            mb: 3,
+                        }}
+                    >
+                        {pay}
+                    </Typography>
 
-                    {/* ACTIONS */}
-                    <Stack spacing={2}>
-                        <Link
-                            href="/"
-                            style={{
-                                width: '100%',
-                                textDecoration: 'none',
-                            }}
-                        >
+                    <Divider sx={{ my: 3 }} />
+
+                    <Typography
+                        sx={{
+                            fontSize: 13,
+                            color: 'text.secondary',
+                            lineHeight: 1.8,
+                            marginBottom: 2,
+                        }}
+                    >
+                        سفارش شما در حال پردازش است. به‌زودی وضعیت ارسال برای شما نمایش داده خواهد شد.
+                    </Typography>
+
+                    <Stack spacing={2} mt={4}>
+                        <Link href="/" replace={true} style={{ textDecoration: 'none' }}>
                             <Button
                                 fullWidth
-                                size="large"
-                                variant="outlined"
-                                startIcon={<HomeRoundedIcon className="ml-4" />}
+                                variant="contained"
+                                startIcon={<HomeRoundedIcon />}
                                 sx={{
-                                    py: 1.7,
+                                    py: 1.5,
                                     borderRadius: 3,
-                                    fontWeight: 800,
-                                    fontSize: 15,
-                                    borderWidth: 2,
-                                    color: 'black',
-                                    boxShadow: 'none',
-                                    borderColor: '#00000025',
-
+                                    fontWeight: 700,
+                                    background: 'linear-gradient(135deg, #16a34a, #22c55e)',
+                                    boxShadow: '0 10px 25px rgba(34,197,94,0.25)',
                                     '&:hover': {
-                                        borderWidth: 2,
                                         transform: 'translateY(-2px)',
+                                        boxShadow: '0 15px 30px rgba(34,197,94,0.35)',
                                     },
-
-                                    transition: 'all 0.25s ease',
+                                    transition: '0.2s',
                                 }}
                             >
-                                بازگشت به صفحه اصلی
+                                بازگشت به خانه
                             </Button>
                         </Link>
                     </Stack>

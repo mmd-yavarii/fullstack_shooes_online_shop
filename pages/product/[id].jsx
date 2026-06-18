@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { CircularProgress, Snackbar, Alert } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 
 import { useCart } from '@/context/CartContext';
 import ProductInfo from '@/components/productPage/ProductInfo';
@@ -37,32 +38,33 @@ function ProductPage() {
         });
     };
 
-    useEffect(() => {
-        if (!id) return;
-
-        const fetchProduct = async () => {
-            setLoading(true);
-
+    const { data, isLoading } = useQuery({
+        queryKey: ['product', id],
+        queryFn: async () => {
             const res = await fetch(`/api/product/${id}`);
-            const data = await res.json();
+            return res.json();
+        },
+        enabled: !!id,
+    });
 
-            const p = data.product;
-            setProduct(p);
+    useEffect(() => {
+        if (!data?.product) return;
 
-            if (p?.sizes?.length) {
-                setSelectedColor(p.sizes[0].color);
-                setSelectedSize(p.sizes[0].size);
-            }
+        const p = data.product;
 
-            if (p?.images?.length) {
-                setSelectedImage(p.images[0]);
-            }
+        setProduct(p);
 
-            setLoading(false);
-        };
+        if (p?.sizes?.length) {
+            setSelectedColor(p.sizes[0].color);
+            setSelectedSize(p.sizes[0].size);
+        }
 
-        fetchProduct();
-    }, [id]);
+        if (p?.images?.length) {
+            setSelectedImage(p.images[0]);
+        }
+
+        setLoading(false);
+    }, [data]);
 
     // colors
     const colors = useMemo(() => {
@@ -148,7 +150,7 @@ function ProductPage() {
         showAlert('به سبد خرید اضافه شد', 'success');
     };
 
-    if (loading) {
+    if (isLoading || loading) {
         return <ProductPageSkeleton />;
     }
 
@@ -156,7 +158,6 @@ function ProductPage() {
 
     return (
         <div className="max-w-[1100px] mx-auto p-4 pb-24 flex flex-col lg:flex-row gap-8 mt-4">
-            {/* ALERT */}
             <Snackbar
                 open={alert.open}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -184,12 +185,10 @@ function ProductPage() {
                 </Alert>
             </Snackbar>
 
-            {/* MEDIA */}
             <div className="flex-1 flex flex-col gap-4">
                 <ProductMedia images={product.images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
             </div>
 
-            {/* INFO + ACTIONS */}
             <div className="flex-1 flex flex-col gap-6">
                 <ProductInfo product={product} finalPrice={finalPrice} />
 

@@ -4,7 +4,7 @@ import { useCart } from '@/context/CartContext';
 import { MdError } from 'react-icons/md';
 
 function CheckoutPage() {
-    const { cart, totalOriginalPrice, totalDiscount, totalPrice, clearCart } = useCart();
+    const { cart, totalOriginalPrice, totalDiscount, totalPrice } = useCart();
 
     const [snackbar, setSnackbar] = useState({
         open: false,

@@ -1,34 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import BanderLoading from './loadings/BanderLoading';
 
 const DURATION = 9000;
 
+async function fetchBanners() {
+    const res = await fetch('/api/baner/get-baner-imgs');
+    const data = await res.json();
+    return data.baners || [];
+}
+
 function BannerSlider() {
-    const [banners, setBanners] = useState([]);
     const [index, setIndex] = useState(0);
     const [fade, setFade] = useState(true);
     const [progress, setProgress] = useState(0);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchBanners = async () => {
-            try {
-                setLoading(true);
-
-                const res = await fetch('/api/baner/get-baner-imgs');
-                const data = await res.json();
-
-                setBanners(data.baners || []);
-            } catch (err) {
-                console.error('Failed to load banners', err);
-                setBanners([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBanners();
-    }, []);
+    const { data: banners = [], isLoading } = useQuery({
+        queryKey: ['banners'],
+        queryFn: fetchBanners,
+    });
 
     useEffect(() => {
         if (!banners.length) return;
@@ -57,7 +47,7 @@ function BannerSlider() {
         return () => clearInterval(interval);
     }, [banners]);
 
-    if (loading) {
+    if (isLoading) {
         return <BanderLoading />;
     }
 
@@ -70,10 +60,8 @@ function BannerSlider() {
     return (
         <div className="w-full flex justify-center" dir="rtl">
             <div className="relative w-full max-w-[900px] h-[300px] overflow-hidden rounded-xl shadow-md">
-                {/* dark overlay */}
                 <div className="absolute inset-0 bg-black/40 z-[1]" />
 
-                {/* progress bar */}
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[92%] h-[6px] z-[3]">
                     <div className="w-full h-full rounded-full bg-white/10 backdrop-blur-md overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-[#6d071a]/20 to-[#a10b2a]/20 animate-pulse" />
@@ -84,14 +72,12 @@ function BannerSlider() {
                     </div>
                 </div>
 
-                {/* image */}
                 <img
                     src={current?.image?.url}
                     alt={current?.title || 'banner'}
                     className={`absolute w-full h-full object-cover transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}
                 />
 
-                {/* text */}
                 <div className="absolute bottom-6 right-6 z-[2] text-white max-w-[70%] text-right">
                     <h2 className="text-2xl font-bold">{current.title}</h2>
                     <p className="text-sm mt-2 opacity-90 leading-6">{current.description}</p>

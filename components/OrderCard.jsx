@@ -226,8 +226,14 @@ export default function OrderCard({ order }) {
                                             background: '#cccccc34',
                                         }}
                                     >
-                                        <Image src={product?.images[0]} alt={product?.title || 'product image'} fill style={{ objectFit: 'cover' }} />
-                                        {console.log(product)}
+                                        {/* <Image src={product?.images[0]} alt={product?.title || 'product image'} fill style={{ objectFit: 'cover' }} /> */}
+
+                                        <Image
+                                            src={product?.images?.[0]?.url || '/placeholder.png'}
+                                            alt={product?.title || 'product image'}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                        />
                                     </Box>
 
                                     {/* TEXTS */}

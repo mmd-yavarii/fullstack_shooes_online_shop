@@ -15,41 +15,21 @@ import {
     DialogActions,
     TextField,
 } from '@mui/material';
-import { useRouter } from 'next/router';
 
-import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 function AddBaner() {
     const router = useRouter();
-
-    useEffect(() => {
-        async function checkAuth() {
-            try {
-                const res = await fetch('/api/auth/verify', {
-                    credentials: 'include',
-                });
-
-                const data = await res.json();
-
-                if (!data.valid) {
-                    router.replace('/admin/login_admin');
-                }
-            } catch (err) {
-                router.back();
-            }
-        }
-
-        checkAuth();
-    }, []);
+    const queryClient = useQueryClient();
 
     const [form, setForm] = useState({
         images: [],
         title: '',
         description: '',
     });
-
-    const [baners, setBaners] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     const [alert, setAlert] = useState({
         open: false,
@@ -60,60 +40,39 @@ function AddBaner() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
 
-    // GET BANNERS
-    const getBaners = async () => {
-        try {
-            setLoading(true);
-
+    // AUTH + FETCH BANNERS
+    const { data, isLoading } = useQuery({
+        queryKey: ['baners'],
+        queryFn: async () => {
             const res = await fetch('/api/baner/get-baner-imgs');
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.message);
 
-            setBaners(data.baners);
-        } catch (err) {
-            setAlert({
-                open: true,
-                type: 'error',
-                message: 'خطا در دریافت بنر ها',
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
+            return data;
+        },
+    });
 
-    useEffect(() => {
-        getBaners();
-    }, []);
+    const baners = data?.baners || [];
 
-    // SUBMIT (FIX اصلی همینجاست)
-    const submitHandler = async () => {
-        if (!form.images.length || !form.title || !form.description) {
-            setAlert({
-                open: true,
-                type: 'error',
-                message: 'همه فیلدها الزامی هستند',
-            });
-            return;
-        }
-
-        try {
+    // ADD BANNER
+    const addMutation = useMutation({
+        mutationFn: async (payload) => {
             const res = await fetch('/api/baner/add-baner-img', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    image: form.images[0], // 👈 تبدیل array به string
-                    title: form.title,
-                    description: form.description,
-                }),
+                body: JSON.stringify(payload),
             });
 
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.message);
 
+            return data;
+        },
+        onSuccess: () => {
             setAlert({
                 open: true,
                 type: 'success',
@@ -126,19 +85,20 @@ function AddBaner() {
                 description: '',
             });
 
-            getBaners();
-        } catch (err) {
+            queryClient.invalidateQueries(['baners']);
+        },
+        onError: (err) => {
             setAlert({
                 open: true,
                 type: 'error',
                 message: err.message || 'خطا در ثبت بنر',
             });
-        }
-    };
+        },
+    });
 
-    // DELETE
-    const deleteHandler = async (id) => {
-        try {
+    // DELETE BANNER
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
             const res = await fetch(`/api/baner/delete-baner-img/${id}`, {
                 method: 'DELETE',
             });
@@ -147,20 +107,52 @@ function AddBaner() {
 
             if (!res.ok) throw new Error(data.message);
 
+            return id;
+        },
+        onSuccess: (id) => {
             setAlert({
                 open: true,
                 type: 'success',
                 message: 'بنر حذف شد',
             });
 
-            setBaners((prev) => prev.filter((item) => item._id !== id));
-        } catch (err) {
+            queryClient.setQueryData(['baners'], (old) => {
+                if (!old) return old;
+
+                return {
+                    ...old,
+                    baners: old.baners.filter((b) => b._id !== id),
+                };
+            });
+        },
+        onError: (err) => {
             setAlert({
                 open: true,
                 type: 'error',
                 message: err.message || 'خطا در حذف بنر',
             });
+        },
+    });
+
+    const submitHandler = () => {
+        if (!form.images.length || !form.title || !form.description) {
+            setAlert({
+                open: true,
+                type: 'error',
+                message: 'همه فیلدها الزامی هستند',
+            });
+            return;
         }
+
+        addMutation.mutate({
+            image: form.images[0],
+            title: form.title,
+            description: form.description,
+        });
+    };
+
+    const deleteHandler = (id) => {
+        deleteMutation.mutate(id);
     };
 
     return (
@@ -171,10 +163,28 @@ function AddBaner() {
             <Snackbar
                 open={alert.open}
                 autoHideDuration={3000}
-                onClose={() => setAlert((p) => ({ ...p, open: false }))}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                onClose={() =>
+                    setAlert((p) => ({
+                        ...p,
+                        open: false,
+                    }))
+                }
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
             >
-                <Alert severity={alert.type} variant="filled" onClose={() => setAlert((p) => ({ ...p, open: false }))} sx={{ width: '100%' }}>
+                <Alert
+                    severity={alert.type}
+                    variant="filled"
+                    onClose={() =>
+                        setAlert((p) => ({
+                            ...p,
+                            open: false,
+                        }))
+                    }
+                    sx={{ width: '100%' }}
+                >
                     {alert.message}
                 </Alert>
             </Snackbar>
@@ -189,7 +199,6 @@ function AddBaner() {
                     <button onClick={() => setConfirmOpen(false)}>لغو</button>
                     <button
                         className="text-red-500 mr-5"
-                        color="error"
                         onClick={() => {
                             deleteHandler(selectedId);
                             setConfirmOpen(false);
@@ -244,7 +253,7 @@ function AddBaner() {
                         <div className="bg-zinc-100 px-4 py-2 rounded-full text-sm">{baners.length} بنر</div>
                     </div>
 
-                    {loading ? (
+                    {isLoading ? (
                         <div className="flex justify-center py-16">
                             <CircularProgress />
                         </div>
@@ -261,7 +270,13 @@ function AddBaner() {
                                         overflow: 'hidden',
                                     }}
                                 >
-                                    <CardMedia component="img" image={item.image?.url || '/placeholder.png'} sx={{ height: 220 }} />
+                                    <CardMedia
+                                        component="img"
+                                        image={item.image?.url || '/placeholder.png'}
+                                        sx={{
+                                            height: 220,
+                                        }}
+                                    />
                                     <CardContent>
                                         <Typography variant="h6" fontWeight={700}>
                                             {item.title}
