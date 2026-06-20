@@ -1,8 +1,8 @@
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import AllProductsList from '@/components/AllProductsList';
 import BannerSlider from '@/components/BannerSlider';
@@ -24,22 +24,38 @@ const fetchProducts = async ({ queryKey }) => {
     return res.json();
 };
 
-export default function Home({ discounted }) {
+export default function Home({ discounted, initialProducts, productsLength }) {
     const [page, setPage] = useState(1);
-
     const [categoryGroup, setCategoryGroup] = useState('all');
     const [subCategory, setSubCategory] = useState('all');
     const [search, setSearch] = useState('');
 
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        queryClient.setQueryData(['products', 1, 'all', 'all', ''], {
+            products: initialProducts,
+            productsLength,
+        });
+    }, [initialProducts, productsLength, queryClient]);
+
+    const shouldFetch = !(page === 1 && categoryGroup === 'all' && subCategory === 'all' && search === '');
+
     const { data, isLoading, error } = useQuery({
         queryKey: ['products', page, categoryGroup, subCategory, search],
         queryFn: fetchProducts,
+        enabled: shouldFetch,
+        initialData:
+            page === 1 && categoryGroup === 'all' && subCategory === 'all' && search === ''
+                ? {
+                      products: initialProducts,
+                      productsLength,
+                  }
+                : undefined,
     });
 
     const products = data?.products || [];
-    const productsLength = data?.productsLength || 0;
-
-    const totalPages = Math.ceil(productsLength / 8);
+    const totalPages = Math.ceil((data?.productsLength || 0) / 8);
 
     if (error) {
         return <div className="text-center py-10">خطا در دریافت محصولات</div>;
@@ -61,7 +77,7 @@ export default function Home({ discounted }) {
 
                         <Link
                             href="/discounts"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition-colors duration-200"
+                            className="inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition"
                         >
                             مشاهده همه تخفیف‌ها
                             <FaLink />
@@ -80,7 +96,6 @@ export default function Home({ discounted }) {
                         .hide-scrollbar::-webkit-scrollbar {
                             display: none;
                         }
-
                         .hide-scrollbar {
                             -ms-overflow-style: none;
                             scrollbar-width: none;
@@ -89,13 +104,14 @@ export default function Home({ discounted }) {
                 </>
             )}
 
-            {/* all products */}
+            {/* banner */}
             <span className="mb-4 inline-block font-semibold">همه محصولات</span>
 
             <div className="mb-5">
                 <BannerSlider />
             </div>
 
+            {/* products */}
             <AllProductsList
                 products={products}
                 setCategoryGroup={setCategoryGroup}
@@ -107,7 +123,7 @@ export default function Home({ discounted }) {
                 search={search}
             />
 
-            {/* PAGINATION */}
+            {/* pagination */}
             <div className="flex items-center justify-center">
                 <Stack spacing={2} alignItems="center" className="my-8">
                     <Pagination
@@ -129,16 +145,26 @@ export default function Home({ discounted }) {
     );
 }
 
+/* ================= ISR ================= */
 export async function getStaticProps() {
     await connectDB();
 
-    const discounted = await Product.find({
-        discount: { $gt: 0 },
-    }).limit(7);
+    const page = 1;
+    const limit = 8;
+
+    const [discounted, initialProducts, productsLength] = await Promise.all([
+        Product.find({ discount: { $gt: 0 } })
+            .limit(7)
+            .lean(),
+        Product.find({}).sort({ createdAt: -1 }).limit(limit).lean(),
+        Product.countDocuments(),
+    ]);
 
     return {
         props: {
             discounted: JSON.parse(JSON.stringify(discounted)),
+            initialProducts: JSON.parse(JSON.stringify(initialProducts)),
+            productsLength,
         },
         revalidate: 3600,
     };
