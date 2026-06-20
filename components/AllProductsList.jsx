@@ -62,23 +62,50 @@ function AllProductsList({ products = [], categoryGroup, setCategoryGroup, subCa
                 <LoadingScreen />
             ) : (
                 <>
-                    <div className="flex overflow-x-auto gap-2 pb-4 no-scrollbar mt-3">
-                        {categories.map((item) => (
-                            <button
-                                key={item}
-                                onClick={() => setSubCategory(item)}
-                                className={`
-                                    px-4 py-1 rounded-full border whitespace-nowrap transition
-                                    ${
-                                        subCategory === item
-                                            ? 'bg-[#6d071a] text-white border-[#6d071a]'
-                                            : 'bg-[#f5f7fb] border-[#eaedf3] text-gray-600'
-                                    }
-                                `}
-                            >
-                                {item === 'all' ? 'همه' : categoryMap[item]}
-                            </button>
-                        ))}
+                    <div className="flex overflow-x-auto gap-2 pb-4 mt-3 no-scrollbar">
+                        {categories.map((item) => {
+                            const active = subCategory === item;
+
+                            return (
+                                <button
+                                    key={item}
+                                    onClick={() => setSubCategory(item)}
+                                    className={`
+                    relative whitespace-nowrap px-4 py-1.5 rounded-full
+                    text-xs font-medium transition-all duration-300
+                    border
+
+                    ${
+                        active
+                            ? `
+                                bg-[#6d071a]
+                                text-white
+                                border-[#6d071a]/20
+                            `
+                            : `
+                                bg-white/60
+                                text-gray-500
+                                border-gray-200
+                                hover:bg-white
+                                hover:border-gray-300
+                                hover:text-gray-700
+                                hover:shadow-sm
+                            `
+                    }
+                `}
+                                >
+                                    {/* subtle glow */}
+                                    <div
+                                        className={`
+                        absolute inset-0 rounded-full transition-opacity duration-300
+                        ${active ? 'opacity-100 bg-[radial-gradient(circle,rgba(109,7,26,0.08)_0%,transparent_70%)]' : 'opacity-0'}
+                    `}
+                                    />
+
+                                    <span className="relative z-10">{item === 'all' ? 'همه' : categoryMap[item]}</span>
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* PRODUCTS */}
