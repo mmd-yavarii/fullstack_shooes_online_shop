@@ -2,6 +2,8 @@ import { ZarinPal } from 'zarinpal-node-sdk';
 
 import connectDB from '@/lib/db';
 import Transaction from '@/models/Transaction';
+import { buildOrderMessage } from '@/lib/telegram/orderMessage';
+import { sendBaleMessage } from '@/lib/telegram/sendMessage';
 
 const sandboxMode = true;
 
@@ -47,17 +49,24 @@ export default async function handler(req, res) {
 
         // success
         if (response.data.code === 100 || response.data.code === 101) {
+            const refId = response.data.ref_id?.toString();
+
             transaction.paymentStatus = 'paid';
-
-            transaction.refId = response.data.ref_id?.toString();
-
+            transaction.refId = refId;
             transaction.cardPan = response.data.card_pan;
-
             transaction.paidAt = new Date();
 
             await transaction.save();
 
-            const refId = response.data.ref_id?.toString();
+            console.log('\n\n\n', transaction, '\n\n\n');
+
+            try {
+                const message = buildOrderMessage(transaction, refId);
+                await sendBaleMessage(message);
+            } catch (err) {
+                console.error('BALE ERROR:', err);
+            }
+
             return res.redirect(`/payment/success?status=success&pay=${refId}`);
         }
 

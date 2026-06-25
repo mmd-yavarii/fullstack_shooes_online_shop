@@ -49,7 +49,7 @@ const ProductSchema = new mongoose.Schema(
 
         group: {
             type: String,
-            enum: ['shoes', 'accessory', 'clothes', 'bag', 'box'],
+            enum: ['shoes', 'accessory', 'clothes', 'bag', 'box', 'hat'],
             required: true,
         },
 

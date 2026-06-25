@@ -1,8 +1,8 @@
 import connectDB from '@/lib/db';
 import Product from '@/models/Product';
 
-import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import AllProductsList from '@/components/AllProductsList';
 import BannerSlider from '@/components/BannerSlider';
@@ -12,6 +12,7 @@ import { Pagination, Stack } from '@mui/material';
 import Link from 'next/link';
 import { FaLink } from 'react-icons/fa';
 
+/* ================= API ================= */
 const fetchProducts = async ({ queryKey }) => {
     const [, page, categoryGroup, subCategory, search] = queryKey;
 
@@ -24,38 +25,24 @@ const fetchProducts = async ({ queryKey }) => {
     return res.json();
 };
 
+/* ================= PAGE ================= */
 export default function Home({ discounted, initialProducts, productsLength }) {
     const [page, setPage] = useState(1);
     const [categoryGroup, setCategoryGroup] = useState('all');
     const [subCategory, setSubCategory] = useState('all');
     const [search, setSearch] = useState('');
 
-    const queryClient = useQueryClient();
-
-    useEffect(() => {
-        queryClient.setQueryData(['products', 1, 'all', 'all', ''], {
-            products: initialProducts,
-            productsLength,
-        });
-    }, [initialProducts, productsLength, queryClient]);
-
-    const shouldFetch = !(page === 1 && categoryGroup === 'all' && subCategory === 'all' && search === '');
+    const isDefault = page === 1 && categoryGroup === 'all' && subCategory === 'all' && search === '';
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['products', page, categoryGroup, subCategory, search],
         queryFn: fetchProducts,
-        enabled: shouldFetch,
-        initialData:
-            page === 1 && categoryGroup === 'all' && subCategory === 'all' && search === ''
-                ? {
-                      products: initialProducts,
-                      productsLength,
-                  }
-                : undefined,
+        enabled: true, // همیشه fetch کن (ساده و پایدار)
+        placeholderData: (prev) => prev, // جلوگیری از flicker
     });
 
-    const products = data?.products || [];
-    const totalPages = Math.ceil((data?.productsLength || 0) / 8);
+    const products = isDefault ? initialProducts : data?.products || [];
+    const totalPages = Math.ceil((data?.productsLength || productsLength) / 8);
 
     if (error) {
         return <div className="text-center py-10">خطا در دریافت محصولات</div>;
@@ -69,49 +56,36 @@ export default function Home({ discounted, initialProducts, productsLength }) {
                 margin: '0 auto',
             }}
         >
-            {/* discounted */}
+            {/* ================= DISCOUNTED ================= */}
             {discounted.length > 0 && (
                 <>
                     <p className="mb-4 flex gap-3">
                         <span>محصولات با تخفیف</span>
 
-                        <Link
-                            href="/discounts"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-[#6d071a] hover:text-[#4b0511] transition"
-                        >
-                            مشاهده همه تخفیف‌ها
+                        <Link href="/discounts" className="inline-flex items-center gap-1 text-sm font-medium text-[#6d071a]">
+                            مشاهده همه
                             <FaLink />
                         </Link>
                     </p>
 
-                    <div className="hide-scrollbar flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 pb-4">
+                    <div className="flex overflow-x-auto gap-3 pb-4">
                         {discounted.map((item) => (
-                            <div key={item._id} className="flex-shrink-0 w-44 sm:w-48 md:w-52 lg:w-56">
+                            <div key={item._id} className="flex-shrink-0 w-48">
                                 <ProductCard data={item} />
                             </div>
                         ))}
                     </div>
-
-                    <style jsx>{`
-                        .hide-scrollbar::-webkit-scrollbar {
-                            display: none;
-                        }
-                        .hide-scrollbar {
-                            -ms-overflow-style: none;
-                            scrollbar-width: none;
-                        }
-                    `}</style>
                 </>
             )}
 
-            {/* banner */}
+            {/* ================= BANNER ================= */}
             <span className="mb-4 inline-block font-semibold">همه محصولات</span>
 
             <div className="mb-5">
                 <BannerSlider />
             </div>
 
-            {/* products */}
+            {/* ================= PRODUCTS ================= */}
             <AllProductsList
                 products={products}
                 setCategoryGroup={setCategoryGroup}
@@ -121,22 +95,19 @@ export default function Home({ discounted, initialProducts, productsLength }) {
                 loading={isLoading}
                 setSearch={setSearch}
                 search={search}
+                setPage={setPage}
             />
 
-            {/* pagination */}
-            <div className="flex items-center justify-center">
-                <Stack spacing={2} alignItems="center" className="my-8">
+            {/* ================= PAGINATION ================= */}
+            <div className="flex justify-center">
+                <Stack spacing={2} className="my-8">
                     <Pagination
                         count={totalPages}
                         page={page}
-                        onChange={(event, value) => setPage(value)}
+                        onChange={(e, value) => setPage(value)}
                         shape="rounded"
-                        color="primary"
                         sx={{
                             direction: 'ltr',
-                            '& .MuiPaginationItem-root': {
-                                fontFamily: 'Vazirmatn, sans-serif',
-                            },
                         }}
                     />
                 </Stack>
@@ -149,7 +120,6 @@ export default function Home({ discounted, initialProducts, productsLength }) {
 export async function getStaticProps() {
     await connectDB();
 
-    const page = 1;
     const limit = 8;
 
     const [discounted, initialProducts, productsLength] = await Promise.all([

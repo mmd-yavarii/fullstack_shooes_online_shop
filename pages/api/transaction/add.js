@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
         const transaction = await Transaction.create({
             user: {
-                fullName: user.fullName, // 👈 بهتر و تمیزتر
+                fullName: user.fullName,
                 phone: user.phone,
                 address: user.address,
                 postalCode: user.postalCode,
