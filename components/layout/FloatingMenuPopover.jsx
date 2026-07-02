@@ -2,7 +2,6 @@ import React from 'react';
 import { Popover, Box, Typography, List, ListItem, ListItemButton } from '@mui/material';
 import Link from 'next/link';
 
-import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import { RiHome5Line } from 'react-icons/ri';
 import { ImInfo } from 'react-icons/im';
@@ -16,9 +15,8 @@ function FloatingMenuPopover({ anchorEl, setAnchorEl, menuItems, setOpenModal })
     };
 
     const iconMap = {
-        خانه: <RiHome5Line sx={iconStyle} />,
-        'درباره ما': <ImInfo sx={iconStyle} />,
-        'توسعه دهندگان': <CodeRoundedIcon sx={iconStyle} />,
+        خانه: <RiHome5Line style={iconStyle} />,
+        'درباره ما': <ImInfo style={iconStyle} />,
         'پیگیری سفارش': <ReceiptLongRoundedIcon sx={iconStyle} />,
     };
 
@@ -39,11 +37,9 @@ function FloatingMenuPopover({ anchorEl, setAnchorEl, menuItems, setOpenModal })
                 sx: {
                     mt: 1.5,
                     width: 270,
-
                     background: 'rgba(255, 255, 255, 0.12)',
                     backdropFilter: 'blur(22px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(22px) saturate(180%)',
-
                     border: '1px solid rgba(255, 255, 255, 0.25)',
                     boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
                     borderRadius: '28px',
@@ -62,61 +58,73 @@ function FloatingMenuPopover({ anchorEl, setAnchorEl, menuItems, setOpenModal })
                         mb: 1.5,
                     }}
                 >
-                    <Typography sx={{ fontSize: 11, color: 'rgba(109,7,26,0.7)', textAlign: 'center', fontWeight: 'bold' }}>منوی فروشگاه</Typography>
+                    <Typography
+                        sx={{
+                            fontSize: 11,
+                            color: 'rgba(109,7,26,0.7)',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        منوی فروشگاه
+                    </Typography>
                 </Box>
 
                 {/* ITEMS */}
                 <List sx={{ p: 0 }}>
-                    {menuItems.map((item) => (
-                        <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
-                            <ListItemButton
-                                component={Link}
-                                href={item.href}
-                                onClick={() => setAnchorEl(null)}
-                                sx={{
-                                    py: 1.2,
-                                    px: 1.5,
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    flexDirection: 'row-reverse',
-                                    background: 'rgba(255,255,255,0.15)',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    transition: '0.25s',
-                                    color: '#6d071a',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'start',
-                                    gap: '10px',
-                                    borderBottom: '1px solid #00000012',
-                                    '&:hover': {
-                                        transform: 'translateY(-2px)',
-                                        background: 'rgba(255,255,255,0.25)',
-                                    },
-                                }}
-                            >
-                                <Typography
+                    {menuItems
+                        .filter((item) => item.text !== 'توسعه دهندگان')
+                        .map((item) => (
+                            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                                <ListItemButton
+                                    component={Link}
+                                    href={item.href}
+                                    onClick={() => setAnchorEl(null)}
                                     sx={{
-                                        fontWeight: 700,
-                                        fontSize: 14,
-                                    }}
-                                >
-                                    {item.text}
-                                </Typography>
-
-                                <Box
-                                    sx={{
+                                        py: 1.2,
+                                        px: 1.5,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        opacity: 0.8,
+                                        justifyContent: 'start',
+                                        gap: '10px',
+                                        flexDirection: 'row-reverse',
+
+                                        background: 'rgba(255,255,255,0.15)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        borderBottom: '1px solid #00000012',
+
+                                        color: '#6d071a',
+                                        transition: '0.25s',
+
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            background: 'rgba(255,255,255,0.25)',
+                                        },
                                     }}
                                 >
-                                    {iconMap[item.text]}
-                                </Box>
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 700,
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {item.text}
+                                    </Typography>
 
-                    {/* ORDER */}
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            opacity: 0.8,
+                                        }}
+                                    >
+                                        {iconMap[item.text]}
+                                    </Box>
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+
+                    {/* ORDER TRACKING */}
                     <ListItem disablePadding sx={{ mt: 1 }}>
                         <ListItemButton
                             onClick={() => {
@@ -136,7 +144,6 @@ function FloatingMenuPopover({ anchorEl, setAnchorEl, menuItems, setOpenModal })
                                 border: '1px solid rgba(255,255,255,0.2)',
 
                                 transition: '0.25s',
-
                                 color: '#6d071a',
 
                                 '&:hover': {
