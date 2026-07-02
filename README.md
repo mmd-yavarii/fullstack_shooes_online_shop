@@ -62,3 +62,59 @@
 
 - پروژه روی پلتفرم **چابکان (Chabokan)** دیپلوی شده است
 - استفاده از CLI چابکان برای استقرار و مدیریت نسخه‌ها
+
+---
+
+## ☁️ استقرار (Deployment)
+
+پروژه بر روی **Chabokan Cloud** مستقر شده است.
+
+### نصب CLI
+
+```bash
+npm install -g @chabokan.net/cli
+```
+
+### ورود به حساب کاربری
+
+```bash
+chabok login
+```
+
+### مشاهده سرویس‌ها
+
+```bash
+chabok service list
+```
+
+### استقرار نسخه جدید
+
+```bash
+npx chabok deploy
+```
+
+### راه‌اندازی مجدد سرویس
+
+```bash
+chabok service restart -s shoose-market
+```
+
+### مشاهده لاگ‌ها
+
+```bash
+chabok service logs -s shoose-market
+```
+
+---
+
+## 🔧 تنظیمات Build
+
+```bash
+npm run build
+```
+
+## 🚀 اجرای برنامه
+
+```bash
+npm run start
+```
